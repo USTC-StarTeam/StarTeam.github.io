@@ -1,471 +1,248 @@
 ---
-/*
-  ⚙️  EXAMPLE COMPONENT — not used by default. This is the Cohen Lab's custom
-  illustrated hero, kept as a reference for what's possible. Replace it with your
-  own motif (a great task to hand to Claude) and render it from src/pages/index.astro,
-  or delete this file. The markup below is specific to that lab's science.
-
-  Hero — the lab's "bedside-to-bedside" pipeline (Cohen, J Neurodev Disord 2022),
-  five line-art steps on a real brain glyph (Lucide `brain`, ISC), brand-recoloured:
-
-    1 MAP      TWO causal-neuroimaging paths — a focal lesion AND pharmaco-fMRI —
-               converge on a brain network (nodes + edges) = the symptom circuit.
-    2 VALIDATE the circuit confirmed across developing ASD/ADHD cohorts.
-    3 MODULATE a figure-8 TMS coil + a closed rt-fMRI neurofeedback loop (MRI scanner).
-    4 ASSESS   the change, measured at the human level (behaviour / symptoms).
-    5 TRIALS   symptom-targeted therapy → clinical trials.
-
-  A connecting rail + a curved return arrow carry the iterative loop back to the
-  bedside. Each step animates. Hand-authored inline SVG, no external assets.
-*/
-interface Props {
-  class?: string;
-}
-const { class: className } = Astro.props;
-
-// Lucide `brain` (two hemispheres) — stroke-only, brand-recoloured, scaled per icon.
-const BRAIN = [
-  "M12 18V5",
-  "M15 13a4.17 4.17 0 0 1-3-4 4.17 4.17 0 0 1-3 4",
-  "M17.598 6.5A3 3 0 1 0 12 5a3 3 0 1 0-5.598 1.5",
-  "M17.997 5.125a4 4 0 0 1 2.526 5.77",
-  "M18 18a4 4 0 0 0 2-7.464",
-  "M19.967 17.483A4 4 0 1 1 12 18a4 4 0 1 1-7.967-.517",
-  "M6 18a4 4 0 0 1-2-7.464",
-  "M6.003 5.125a4 4 0 0 0-2.526 5.77",
-];
-
-// MAP — a small connectome (the symptom circuit) over the brain, placed in the
-// open interior (clear of the brain's outline + gyri strokes).
-const MAP_NODES: [number, number][] = [[47, 33], [50, 46], [64, 32], [66, 45]];
-const MAP_EDGES: [number, number][] = [[0, 1], [2, 3], [0, 2], [1, 3], [0, 3]];
-
-const steps = [
-  { n: 1, title: "Map", cap: "lesions & pharmaco-fMRI" },
-  { n: 2, title: "Validate", cap: "in non-lesional patients" },
-  { n: 3, title: "Modulate", cap: "TMS & neurofeedback" },
-  { n: 4, title: "Assess", cap: "change in behavior" },
-  { n: 5, title: "Translate", cap: "rapid clinical trials" },
-] as const;
+import { architectureLayers } from "../data/architecture";
 ---
 
-<div class:list={["pipeline", className]}>
-  <ol class="steps grid grid-cols-1 gap-y-3 sm:grid-cols-3 sm:gap-x-2 sm:gap-y-8 lg:grid-cols-5">
-    {steps.map((s) => (
-      <li class={`step step-${s.n} relative`}>
-        <a
-          href="/research"
-          class="group flex items-center gap-4 text-left sm:flex-col sm:items-center sm:gap-0 sm:text-center"
-        >
-        <div class="icon shrink-0">
-          {s.n === 1 && (
-            /* MAP — two causal paths converge on a brain network */
-            <svg viewBox="0 0 80 80" fill="none" aria-hidden="true">
-              <g class="brain" transform="translate(33 16) scale(1.85)">
-                {BRAIN.map((d) => <path d={d} />)}
-              </g>
-              <g class="net">
-                {MAP_EDGES.map(([a, b]) => (
-                  <line x1={MAP_NODES[a][0]} y1={MAP_NODES[a][1]} x2={MAP_NODES[b][0]} y2={MAP_NODES[b][1]} />
-                ))}
-                {MAP_NODES.map(([x, y], i) => (
-                  <Fragment>
-                    <circle class="net-halo" cx={x} cy={y} r="3.6" />
-                    <circle class="net-node" style={`--i:${i}`} cx={x} cy={y} r="2.3" />
-                  </Fragment>
-                ))}
-              </g>
-              {/* source A — focal lesion */}
-              <path class="lesion" d="M11 19 c5 -1 7 3 5 7 c-1 3 -6 4 -8 1 c-2 -3 -1 -7 3 -8 Z" />
-              {/* source B — pharmaco-fMRI capsule */}
-              <g class="drug">
-                <rect x="4" y="50" width="18" height="9.5" rx="4.75" transform="rotate(-16 13 55)" />
-                <line class="pill-split" x1="13" y1="48.6" x2="15.6" y2="57.6" />
-              </g>
-              {/* the two paths merge → one arrow into the network */}
-              <path class="merge" d="M18 25 C25 29 26 36 31 38" />
-              <path class="merge" d="M20 53 C27 50 26 42 31 39" />
-              <path class="merge-arrow" d="M31 38.5 L38 38.5 M35 35.5 L38.6 38.6 L35 41.6" />
-            </svg>
-          )}
-          {s.n === 2 && (
-            /* VALIDATE — circuit confirmed across a developing cohort, badge check */
-            <svg viewBox="0 0 80 80" fill="none" aria-hidden="true">
-              <g class="brain cohort c-a" transform="translate(-1 26) scale(1.15)">
-                {BRAIN.map((d) => <path d={d} />)}
-              </g>
-              <g class="brain cohort c-b" transform="translate(7 19) scale(1.5)">
-                {BRAIN.map((d) => <path d={d} />)}
-              </g>
-              <g class="brain" transform="translate(26 13) scale(1.95)">
-                {BRAIN.map((d) => <path d={d} />)}
-              </g>
-              <circle class="badge" cx="62" cy="61" r="11" />
-              <path class="badge-check" d="M56.5 61 L60.5 65.5 L68 54.5" />
-            </svg>
-          )}
-          {s.n === 3 && (
-            /* MODULATE — figure-8 TMS coil + a closed rt-fMRI neurofeedback loop */
-            <svg viewBox="0 0 80 80" fill="none" aria-hidden="true">
-              <defs>
-                <marker
-                  id="fb-arrow"
-                  viewBox="0 0 10 10"
-                  refX="6.5"
-                  refY="5"
-                  markerWidth="7"
-                  markerHeight="7"
-                  markerUnits="userSpaceOnUse"
-                  orient="auto"
-                >
-                  <path class="mk" d="M1.5 2 L8 5 L1.5 8" />
-                </marker>
-              </defs>
-              <g class="brain" transform="translate(0 28) scale(1.4)">
-                {BRAIN.map((d) => <path d={d} />)}
-              </g>
-              {/* TMS figure-8 coil: figure-8 against the scalp, handle pointing away */}
-              <g class="coil">
-                <line x1="16.5" y1="15" x2="16.5" y2="6" />
-                <circle cx="11" cy="21" r="5.5" />
-                <circle cx="22" cy="21" r="5.5" />
-              </g>
-              <g class="pulse">
-                <path d="M9 28 Q16.5 30.5 24 28" />
-                <path d="M7.5 32 Q16.5 34.5 25.5 32" />
-              </g>
-              {/* MRI scanner (real-time fMRI): gantry + bore tunnel + patient bed */}
-              <g class="mri">
-                <rect x="55" y="32" width="21" height="29" rx="4" />
-                <circle class="bore" cx="65.5" cy="46" r="8" />
-                <circle class="bore" cx="65.5" cy="46" r="4.3" />
-                <line class="bed" x1="44" y1="52" x2="60" y2="52" />
-                <line class="bed" x1="46.5" y1="52" x2="46.5" y2="58" />
-              </g>
-              {/* closed neurofeedback loop: brain <-> scanner */}
-              <g class="fb">
-                <path d="M31 42 C37 37 41 38 44 43" marker-end="url(#fb-arrow)" />
-                <path d="M44 54 C41 59 35 59 31 53" marker-end="url(#fb-arrow)" />
-              </g>
-            </svg>
-          )}
-          {s.n === 4 && (
-            /* ASSESS — change measured at the human level (person + outcome rising) */
-            <svg viewBox="0 0 80 80" fill="none" aria-hidden="true">
-              <defs>
-                <marker
-                  id="assess-arrow"
-                  viewBox="0 0 10 10"
-                  refX="6.5"
-                  refY="5"
-                  markerWidth="8"
-                  markerHeight="8"
-                  markerUnits="userSpaceOnUse"
-                  orient="auto"
-                >
-                  <path class="mk" d="M1.5 2 L8 5 L1.5 8" />
-                </marker>
-              </defs>
-              <g class="person">
-                <circle cx="29" cy="24" r="10" />
-                <path d="M13 58 C13 45 21 39 29 39 C37 39 45 45 45 58" />
-              </g>
-              <g class="bars">
-                <line style="--i:0" x1="55" y1="57" x2="55" y2="49" />
-                <line style="--i:1" x1="62" y1="57" x2="62" y2="41" />
-                <line style="--i:2" x1="69" y1="57" x2="69" y2="31" />
-              </g>
-              <path class="rise" d="M53 51 L60 43 L66.5 28" marker-end="url(#assess-arrow)" />
-            </svg>
-          )}
-          {s.n === 5 && (
-            /* CLINICAL TRIALS — symptom-targeted treatment protocol, endpoints met */
-            <svg viewBox="0 0 80 80" fill="none" aria-hidden="true">
-              <g class="trial">
-                <rect x="22" y="17" width="36" height="49" rx="3.5" />
-                <rect class="clip" x="31" y="12" width="18" height="9" rx="2.5" />
-                <g class="rows">
-                  <path class="tick" style="--i:0" d="M28 31 l3 3 l5.5 -6.5" />
-                  <line x1="39" y1="31" x2="52" y2="31" />
-                  <path class="tick" style="--i:1" d="M28 43 l3 3 l5.5 -6.5" />
-                  <line x1="39" y1="43" x2="52" y2="43" />
-                  <path class="tick" style="--i:2" d="M28 55 l3 3 l5.5 -6.5" />
-                  <line x1="39" y1="55" x2="49" y2="55" />
-                </g>
-              </g>
-            </svg>
-          )}
-        </div>
-        <div class="sm:mt-3">
-          <p class="font-serif text-base text-slate-900 group-hover:text-primary-700">{s.title}</p>
-          <p class="mt-0.5 text-xs text-slate-600">{s.cap}</p>
-        </div>
-        </a>
-      </li>
-    ))}
-  </ol>
-
-  {/* Iterative return loop (desktop): curved arrow back from trials → map */}
-  <div class="loopback hidden lg:block">
-    <svg class="lb-arc" viewBox="0 0 1000 56" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
-      <path class="lb-track" d="M900 14 C922 14 922 48 900 48 L135 48 C100 48 100 30 100 17" />
-      <path class="lb-head" d="M93 25 L100 14 L107 25" />
-    </svg>
-    <span class="lb-label">Refine the target &amp; repeat</span>
+<div class="system-pipeline" data-system-pipeline>
+  <div class="pipeline-toolbar">
+    <p>从数据到应用，连接系统的四个要素</p>
+    <button class="motion-control" type="button" aria-pressed="false" data-motion-toggle>
+      <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M5 4v8M11 4v8" /></svg>
+      <span data-motion-label>暂停动效</span>
+    </button>
   </div>
-
-  {/* Mobile / fallback loop note */}
-  <p class="loopnote mx-auto mt-7 flex w-fit items-center gap-2 rounded-full bg-primary-50 px-4 py-1.5 text-xs font-medium text-accent-700 lg:hidden">
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" class="h-4 w-4">
-      <path d="M20 11a8 8 0 1 0-2.3 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-      <path d="M20 5v6h-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+  <div class="pipeline-diagram">
+    <svg class="pipeline-rail" viewBox="0 0 1000 260" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <marker id="system-forward-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="m2 2 4 3-4 3" fill="none" stroke="#79b5e2" stroke-width="1.6" /></marker>
+      </defs>
+      <path class="rail-track" d="M190 70H310" marker-end="url(#system-forward-arrow)" />
+      <path class="rail-track" d="M440 70H560" marker-end="url(#system-forward-arrow)" />
+      <path class="rail-track" d="M690 70H810" marker-end="url(#system-forward-arrow)" />
+      <path class="rail-signal rail-signal-1" pathLength="100" d="M190 70H310" />
+      <path class="rail-signal rail-signal-2" pathLength="100" d="M440 70H560" />
+      <path class="rail-signal rail-signal-3" pathLength="100" d="M690 70H810" />
+      <path class="return-track" d="M875 199V214Q875 240 849 240H151Q125 240 125 214V199" />
+      <path class="return-signal" pathLength="100" d="M875 199V214Q875 240 849 240H151Q125 240 125 214V199" />
+      <path class="return-head" d="m119 208 6-10 6 10" />
     </svg>
-    An iterative loop — bedside to clinical trials, and back
-  </p>
+    <ol class="pipeline-steps">
+      {architectureLayers.map((layer, index) => (
+        <li class="pipeline-step" style={`--phase:${index * 2}s;--icon-phase:${index * -.28}s`}>
+          <a class="pipeline-step-link" href={`#layer-${layer.id}`}>
+            <div class={`pipeline-icon icon-${layer.id}`}>
+              <svg viewBox="0 0 120 108" fill="none" aria-hidden="true">
+                {layer.id === "data" && <>
+                  <path class="icon-soft" d="M23 34 8 45l15 11 M20 77 9 77 M94 20h15 M103 14v12" />
+                  <path class="icon-link" d="M35 42h17 M35 65h17 M86 53h15" />
+                  <g class="data-sheet"><rect class="icon-disc" x="14" y="23" width="27" height="34" rx="4" /><path class="icon-soft" d="M21 32h13 M21 39h13 M21 46h8" /></g>
+                  <g class="data-store"><ellipse cx="68" cy="35" rx="22" ry="9" /><path d="M46 35v37c0 12 44 12 44 0V35 M46 53c0 12 44 12 44 0 M46 71c0 12 44 12 44 0" /><circle class="icon-accent-fill signal-node" cx="68" cy="54" r="3" /></g>
+                  <g class="data-scanner"><path class="scan-band" d="M51 42h34v6H51z" /><path class="icon-accent" d="M51 45h34" /></g>
+                  <g class="data-check"><circle cx="94" cy="79" r="12" class="icon-disc" /><path class="icon-accent data-checkmark" pathLength="1" d="m88 79 4 4 8-9" /></g>
+                </>}
+                {layer.id === "model" && <>
+                  <path class="icon-soft" d="M16 28 42 39 M16 54h26 M16 80 42 69 M50 39l26 15 M50 69l26-15 M50 39l26 39 M50 69l26-39 M84 30l22 24 M84 78l22-24 M50 39v30 M84 30v48" />
+                  <path class="icon-link" d="M50 39l26 15 M84 54h22" />
+                  <path class="icon-accent model-signal model-signal-upper" pathLength="100" d="M16 28 46 39 80 54H108" />
+                  <path class="icon-accent model-signal model-signal-lower" pathLength="100" d="M16 80 46 69 80 30 108 54" />
+                  <g class="model-layer model-layer-input"><circle cx="16" cy="28" r="6" /><circle cx="16" cy="54" r="6" /><circle cx="16" cy="80" r="6" /></g>
+                  <g class="model-layer model-layer-first"><circle cx="46" cy="39" r="7" class="icon-disc" /><circle cx="46" cy="69" r="7" class="icon-disc" /></g>
+                  <g class="model-layer model-layer-second"><circle cx="80" cy="30" r="7" class="icon-disc" /><circle cx="80" cy="54" r="7" class="icon-disc" /><circle cx="80" cy="78" r="7" class="icon-disc" /></g>
+                  <g class="model-layer model-layer-output"><circle cx="108" cy="54" r="7" class="icon-output" /></g>
+                  <circle cx="46" cy="39" r="2.5" class="icon-accent-fill signal-node" /><circle cx="80" cy="54" r="2.5" class="icon-accent-fill signal-node node-second" />
+                </>}
+                {layer.id === "harness" && <>
+                  <path class="icon-soft" d="M19 48v28q0 8 8 8h56 M93 57v19q0 8-8 8" />
+                  <path class="icon-link" d="M37 33h12 M74 33h12" />
+                  <path class="icon-accent harness-dispatch" pathLength="100" d="M21 33h80v43q0 8-8 8H59" />
+                  <g class="harness-node harness-task"><rect x="5" y="20" width="33" height="27" rx="5" class="harness-node-face" /><g class="harness-task-lines"><path d="M13 29h16 M13 36h10" class="icon-soft" /></g></g>
+                  <g class="harness-node harness-tool"><rect x="49" y="20" width="25" height="27" rx="5" class="icon-disc harness-node-face" /><path d="M61.5 26v14 M56 33h11" /></g>
+                  <g class="harness-node harness-terminal"><rect x="86" y="20" width="29" height="27" rx="5" class="harness-node-face" /><path class="icon-accent terminal-command" d="m93 28 5 5-5 5" /><path class="icon-accent terminal-cursor" d="M102 38h6" /></g>
+                  <rect x="38" y="72" width="43" height="22" rx="5" class="icon-disc" /><circle cx="47" cy="83" r="3" class="icon-accent-fill signal-node harness-status-dot" /><path class="icon-soft" d="M55 80h18" /><path class="icon-accent harness-progress" pathLength="1" d="M55 86h16" />
+                  <path class="icon-accent harness-done" pathLength="1" d="m44 83 3 3 5-6" />
+                  <path class="icon-accent" d="m89 78-6 6 6 6" />
+                </>}
+                {layer.id === "application" && <>
+                  <rect x="13" y="19" width="94" height="69" rx="7" /><path d="M13 33h94" class="icon-soft" /><circle cx="22" cy="26" r="1.5" class="icon-dot" /><circle cx="29" cy="26" r="1.5" class="icon-dot" /><circle cx="36" cy="26" r="1.5" class="icon-dot" />
+                  <rect x="22" y="42" width="35" height="34" rx="3" class="icon-disc" />
+                  <g class="application-bars"><path class="application-bar bar-first" d="M29 70v-8" /><path class="application-bar bar-second" d="M38 70V57" /><path class="application-bar bar-third" d="M47 70V50" /></g>
+                  <path d="m28 66 8-8 6 3 8-12" pathLength="1" class="icon-accent application-chart" /><path d="M66 45h28 M66 54h19 M66 64h25 M66 73h12" class="icon-soft" />
+                  <path class="icon-soft application-feedback-track" d="M79 94H46q-9 0-9-9" /><path class="icon-accent application-feedback-signal" pathLength="100" d="M79 94H46q-9 0-9-9" />
+                  <g class="application-complete"><circle cx="96" cy="84" r="13" class="icon-disc" /><path d="m90 84 4 4 8-9" pathLength="1" class="icon-accent application-check" /></g>
+                </>}
+              </svg>
+            </div>
+            <h3>{layer.title}</h3>
+            <p>{layer.caption}</p>
+          </a>
+        </li>
+      ))}
+    </ol>
+    <p class="pipeline-feedback"><span aria-hidden="true">↶</span> 应用反馈，驱动下一轮改进</p>
+  </div>
+  <p class="pipeline-footnote">四个要素协同作用；连线表达研究联系与反馈，不限定为单向执行流程。</p>
 </div>
 
+<script>
+  const pipeline = document.querySelector<HTMLElement>("[data-system-pipeline]");
+  const motionToggle = pipeline?.querySelector<HTMLButtonElement>("[data-motion-toggle]");
+  const motionLabel = pipeline?.querySelector<HTMLElement>("[data-motion-label]");
+  const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
+  let userPaused = false;
+  const syncMotion = () => {
+    const reduced = motionPreference.matches;
+    pipeline?.classList.toggle("is-paused", userPaused || reduced);
+    if (motionToggle) {
+      motionToggle.disabled = reduced;
+      motionToggle.setAttribute("aria-pressed", String(userPaused || reduced));
+    }
+    if (motionLabel) motionLabel.textContent = reduced ? "已减少动效" : userPaused ? "播放动效" : "暂停动效";
+  };
+  motionToggle?.addEventListener("click", () => { userPaused = !userPaused; syncMotion(); });
+  motionPreference.addEventListener("change", syncMotion);
+  syncMotion();
+  // Stop offscreen/hidden animation without polling or accumulating timer work.
+  const observer = new IntersectionObserver(([entry]) => {
+    pipeline?.classList.toggle("is-offscreen", !entry.isIntersecting);
+  });
+  if (pipeline) observer.observe(pipeline);
+  const syncDocumentVisibility = () => pipeline?.classList.toggle("is-document-hidden", document.hidden);
+  document.addEventListener("visibilitychange", syncDocumentVisibility);
+  syncDocumentVisibility();
+</script>
+
 <style>
-  .pipeline .icon svg {
-    width: 64px;
-    height: 64px;
-  }
-  @media (min-width: 640px) {
-    .pipeline .icon svg {
-      width: 90px;
-      height: 90px;
-    }
-  }
-  /* Mobile: stacked steps joined by a short vertical connector (in the gap). */
-  @media (max-width: 639px) {
-    .pipeline .step:not(:last-child)::after {
-      content: "";
-      position: absolute;
-      left: 31px;
-      top: 64px;
-      height: 12px;
-      width: 2px;
-      background: var(--color-primary-200);
-      transform: translateX(-1px);
-    }
-  }
-  /* Base line-art (cool / structural). */
-  .pipeline .icon :is(circle, line, path, polyline, rect, polygon) {
-    stroke: var(--color-primary-600);
-    stroke-width: 2.3;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
-  .pipeline .brain path {
-    vector-effect: non-scaling-stroke;
-    stroke-width: 1.7;
-    fill: none;
-  }
-  .pipeline .cohort path {
-    stroke: var(--color-primary-300);
-  }
-  .pipeline .person path,
-  .pipeline .screen rect {
-    fill: none;
-  }
-  /* Accent = circuit / perturbation / signal / outcome. */
-  .pipeline .lesion {
-    fill: var(--color-accent-500);
-    stroke: none;
-  }
-  .pipeline .net line {
-    stroke: var(--color-accent-400);
-    stroke-width: 1.5;
-  }
-  .pipeline .net-halo {
-    fill: #fff;
-    stroke: none;
-  }
-  .pipeline .net-node {
-    fill: var(--color-accent-500);
-    stroke: none;
-  }
-  .pipeline :is(.drug rect, .pill-split, .merge, .merge-arrow, .coil, .pulse path,
-    .fb path, .rise, .rise-tip, .bars line, .badge-check) {
-    stroke: var(--color-accent-500);
-  }
-  .pipeline .drug rect {
-    fill: var(--color-accent-50);
-  }
-  .pipeline :is(.pulse path, .merge, .fb path) {
-    stroke-width: 1.8;
-  }
-  .pipeline .badge {
-    fill: var(--color-accent-500);
-    stroke: none;
-  }
-  .pipeline .badge-check {
-    stroke: #fff;
-    stroke-width: 2.6;
-  }
-  .pipeline .icon marker .mk {
-    fill: none;
-    stroke: var(--color-accent-500);
-    stroke-width: 2.2;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
-  .pipeline .mri rect {
-    fill: var(--color-primary-50);
-  }
-  .pipeline .mri .bore {
-    fill: #fff;
-  }
-  .pipeline .trial rect {
-    fill: var(--color-primary-50);
-  }
-  .pipeline .trial .clip {
-    fill: #fff;
-  }
-  .pipeline .trial .rows line {
-    stroke: var(--color-primary-400);
-    stroke-width: 2;
-  }
-  .pipeline .trial .tick {
-    stroke: var(--color-accent-500);
-    stroke-width: 2.4;
-  }
+  .system-pipeline { --flow-cycle: 10s; --icon-cycle: 4.4s; }
+  .pipeline-toolbar { display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:1.75rem; }
+  .pipeline-toolbar>p { font-size:.8rem; color:#64748b; line-height:1.65; }
+  .motion-control { display:inline-flex; align-items:center; flex-shrink:0; gap:.4rem; border:1px solid #dbe5ed; border-radius:999px; padding:.45rem .7rem; font-size:.7rem; color:#526780; background:#fff; cursor:pointer; }
+  .motion-control svg { width:.7rem; height:.7rem; stroke:currentColor; stroke-width:1.7; }
+  .motion-control:hover { border-color:#79b5e2; color:#124d80; }
+  .motion-control:disabled { opacity:.65; cursor:default; }
+  .pipeline-diagram { position:relative; }
+  .pipeline-rail { position:absolute; inset:0; width:100%; height:16.25rem; overflow:visible; pointer-events:none; }
+  .rail-track { fill:none; stroke:#d4e5f1; stroke-width:1.5; }
+  .rail-signal { fill:none; stroke:#d6409f; stroke-width:2; stroke-linecap:round; stroke-dasharray:12 110; stroke-dashoffset:12; opacity:0; }
+  .rail-signal-1 { animation-delay:1s!important; }
+  .rail-signal-2 { animation-delay:3s!important; }
+  .rail-signal-3 { animation-delay:5s!important; }
+  .return-track { fill:none; stroke:#a5c9e6; stroke-width:1.6; stroke-dasharray:5 6; }
+  .return-signal { fill:none; stroke:#d6409f; stroke-width:2; stroke-linecap:round; stroke-dasharray:5 110; stroke-dashoffset:5; opacity:0; }
+  .return-head { fill:none; stroke:#d6409f; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+  .pipeline-steps { position:relative; display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); margin:0; padding:0; list-style:none; }
+  .pipeline-step-link { display:flex; flex-direction:column; align-items:center; text-align:center; min-width:0; border-radius:.6rem; padding:.25rem .4rem; }
+  .pipeline-icon { position:relative; width:7.5rem; height:7.5rem; display:grid; place-items:center; isolation:isolate; }
+  .pipeline-icon::before { content:""; position:absolute; width:6.25rem; height:6.25rem; border-radius:50%; background:radial-gradient(circle,#e6f2fc 0%,#f4f9fd 52%,transparent 73%); opacity:.2; z-index:-1; }
+  .pipeline-icon svg { width:7.2rem; height:6.5rem; overflow:visible; stroke:#1f73b8; stroke-width:2.1; stroke-linecap:round; stroke-linejoin:round; }
+  .pipeline-icon svg * { vector-effect:non-scaling-stroke; }
+  .pipeline-icon .icon-soft { stroke:#84b6dd; stroke-width:1.5; }
+  .pipeline-icon .icon-accent { stroke:#d6409f; stroke-width:2.5; }
+  .pipeline-icon .icon-disc { fill:#f4f9fe; }
+  .pipeline-icon .icon-link { stroke:#d6409f; stroke-width:1.5; stroke-dasharray:3 4; }
+  .pipeline-icon .icon-accent-fill { fill:#d6409f; stroke:white; stroke-width:1; }
+  .pipeline-icon .icon-dot { fill:#84b6dd; stroke:none; }
+  .pipeline-icon .icon-output { fill:#fcebf7; stroke:#d6409f; }
+  .pipeline-icon .scan-band { fill:#d6409f; fill-opacity:.1; stroke:none; }
+  .pipeline-icon .model-layer circle { transform-box:fill-box; transform-origin:center; }
+  .pipeline-icon .harness-node-face { fill:#f4f9fe; }
+  .pipeline-icon .application-bar { stroke:#84b6dd; stroke-width:3; transform-box:fill-box; transform-origin:center bottom; }
+  /* Moving overlays are optional detail: reduced motion keeps a complete, static illustration. */
+  .data-scanner,.model-signal,.harness-dispatch,.harness-done,.application-feedback-signal { opacity:0; }
+  .pipeline-step h3 { margin-top:.85rem; font-size:1.5rem; line-height:1.15; font-weight:400; }
+  .pipeline-step p { margin-top:.55rem; font-size:.8rem; color:#526780; line-height:1.65; }
+  .pipeline-step-link:hover h3 { color:#155e9c; }
+  .pipeline-feedback { position:relative; width:fit-content; max-width:80%; margin:2rem auto 0; padding:.25rem .9rem; color:#97226b; background:white; font-size:.8rem; font-weight:500; text-align:center; line-height:1.6; }
+  .pipeline-feedback>span { display:none; }
+  .pipeline-footnote { margin:2.25rem auto 0; text-align:center; font-size:.7rem; color:#64748b; line-height:1.8; }
+  @media (prefers-reduced-motion:no-preference) {
+    .pipeline-icon::before { animation:layer-highlight var(--flow-cycle) ease-in-out infinite; animation-delay:var(--phase); }
+    .pipeline-icon .signal-node { animation:node-highlight var(--flow-cycle) ease-in-out infinite; animation-delay:var(--phase); transform-origin:center; transform-box:fill-box; }
+    .pipeline-icon .node-second { animation-delay:calc(var(--phase) + .4s); }
+    .rail-signal { animation:forward-signal var(--flow-cycle) linear infinite; }
+    .return-signal { animation:return-signal var(--flow-cycle) linear infinite; }
 
-  /* Forward connector chevrons between steps (desktop) — the linear pipeline. */
-  @media (min-width: 1024px) {
-    .pipeline .step:not(:last-child)::after {
-      content: "";
-      position: absolute;
-      top: 42px;
-      right: -5px;
-      width: 9px;
-      height: 9px;
-      border-top: 2px solid var(--color-primary-300);
-      border-right: 2px solid var(--color-primary-300);
-      transform: rotate(45deg);
-    }
-  }
+    /* Each icon tells its own short story; only internal parts move, never the whole SVG. */
+    .data-sheet { animation:data-ingest var(--icon-cycle) ease-in-out infinite; animation-delay:var(--icon-phase); transform-box:fill-box; transform-origin:center; }
+    .data-scanner { animation:data-scan var(--icon-cycle) linear infinite; animation-delay:var(--icon-phase); }
+    .data-check { animation:data-confirm var(--icon-cycle) ease-in-out infinite; animation-delay:var(--icon-phase); transform-box:fill-box; transform-origin:center; }
+    .data-checkmark { stroke-dasharray:1; animation:data-check-draw var(--icon-cycle) ease-in-out infinite; animation-delay:var(--icon-phase); }
 
-  /* Return-loop arrow (desktop). */
-  .pipeline .loopback {
-    position: relative;
-    margin-top: 0.75rem;
-  }
-  .pipeline .lb-arc {
-    width: 100%;
-    height: auto;
-    overflow: visible;
-  }
-  .pipeline .lb-track {
-    fill: none;
-    stroke: var(--color-primary-300);
-    stroke-width: 2;
-    stroke-dasharray: 5 6;
-  }
-  .pipeline .lb-head {
-    fill: none;
-    stroke: var(--color-accent-500);
-    stroke-width: 2.2;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
-  .pipeline .lb-label {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    background: #fff;
-    padding: 0 0.75rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: var(--color-accent-700);
-  }
+    .model-signal { stroke-dasharray:16 120; animation:model-transmit var(--icon-cycle) linear infinite; animation-delay:var(--icon-phase); }
+    .model-signal-lower { animation-delay:calc(var(--icon-phase) + .32s); }
+    .model-layer circle { animation:model-layer-fire var(--icon-cycle) ease-in-out infinite; animation-delay:calc(var(--icon-phase) + var(--node-delay)); }
+    .model-layer-input { --node-delay:0s; }
+    .model-layer-first { --node-delay:.6s; }
+    .model-layer-second { --node-delay:1.2s; }
+    .model-layer-output { --node-delay:1.8s; }
 
-  /* ---- Per-step animation ---- */
-  @media (prefers-reduced-motion: no-preference) {
-    /* 1 MAP — causal flow inward + the circuit lighting up */
-    .pipeline .merge {
-      stroke-dasharray: 4 5;
-      animation: ph-flow 1.4s linear infinite;
-    }
-    .pipeline .lesion {
-      transform-box: fill-box;
-      transform-origin: center;
-      animation: ph-blip 2.8s ease-in-out infinite;
-    }
-    .pipeline .net-node {
-      transform-box: fill-box;
-      transform-origin: center;
-      animation: ph-node 2.4s ease-in-out infinite;
-      animation-delay: calc(var(--i) * 0.3s);
-    }
-    /* 2 VALIDATE — the check draws in, badge pops */
-    .pipeline .badge {
-      transform-box: fill-box;
-      transform-origin: center;
-      animation: ph-pop 3.4s ease-in-out infinite;
-    }
-    .pipeline .badge-check {
-      --len: 22;
-      stroke-dasharray: 22;
-      animation: ph-draw 3.4s ease-in-out infinite;
-    }
-    /* 3 MODULATE — TMS pulses + signal travels the neurofeedback loop */
-    .pipeline .pulse path {
-      transform-box: fill-box;
-      transform-origin: 50% 100%;
-      animation: ph-pulse 2.4s ease-out infinite;
-    }
-    .pipeline .pulse path:nth-child(2) {
-      animation-delay: 0.5s;
-    }
-    .pipeline .fb path:not(.fb-tip) {
-      stroke-dasharray: 4 6;
-      animation: ph-flow 1.5s linear infinite;
-    }
-    /* 4 ASSESS — bars grow, outcome line draws */
-    .pipeline .bars line {
-      transform-box: fill-box;
-      transform-origin: 50% 100%;
-      animation: ph-grow 2.8s ease-in-out infinite;
-      animation-delay: calc(var(--i) * 0.25s);
-    }
-    .pipeline .rise {
-      stroke-dasharray: 60;
-      animation: ph-draw 3s ease-in-out infinite;
-    }
-    /* 5 TRIALS — endpoints tick in, one by one */
-    .pipeline .tick {
-      --len: 16;
-      stroke-dasharray: 16;
-      animation: ph-draw 3.2s ease-in-out infinite;
-      animation-delay: calc(var(--i) * 0.45s);
-    }
-  }
+    .harness-node-face { animation:harness-node-light var(--icon-cycle) ease-in-out infinite; animation-delay:calc(var(--icon-phase) + var(--task-delay)); }
+    .harness-task { --task-delay:0s; }
+    .harness-tool { --task-delay:.65s; }
+    .harness-terminal { --task-delay:1.3s; }
+    .harness-task-lines { animation:harness-task-read var(--icon-cycle) ease-in-out infinite; animation-delay:var(--icon-phase); }
+    .harness-dispatch { stroke-dasharray:10 120; animation:harness-dispatch var(--icon-cycle) linear infinite; animation-delay:var(--icon-phase); }
+    .terminal-command { animation:terminal-command var(--icon-cycle) ease-in-out infinite; animation-delay:var(--icon-phase); }
+    .terminal-cursor { animation:terminal-cursor var(--icon-cycle) linear infinite; animation-delay:var(--icon-phase); }
+    .pipeline-icon .harness-status-dot { animation:harness-running var(--icon-cycle) ease-in-out infinite; animation-delay:var(--icon-phase); }
+    .harness-progress { stroke-dasharray:1; animation:harness-progress var(--icon-cycle) ease-in-out infinite; animation-delay:var(--icon-phase); }
+    .harness-done { stroke-dasharray:1; animation:harness-complete var(--icon-cycle) ease-in-out infinite; animation-delay:var(--icon-phase); }
 
-  @keyframes ph-flow { to { stroke-dashoffset: -18; } }
-  @keyframes ph-blip {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.5; transform: scale(0.78); }
+    .application-bar { animation:application-bar-grow var(--icon-cycle) ease-in-out infinite; animation-delay:calc(var(--icon-phase) + var(--bar-delay)); }
+    .bar-first { --bar-delay:0s; }
+    .bar-second { --bar-delay:.18s; }
+    .bar-third { --bar-delay:.36s; }
+    .application-chart { stroke-dasharray:1; animation:application-chart-draw var(--icon-cycle) ease-in-out infinite; animation-delay:var(--icon-phase); }
+    .application-complete { animation:application-confirm var(--icon-cycle) ease-in-out infinite; animation-delay:var(--icon-phase); transform-box:fill-box; transform-origin:center; }
+    .application-check { stroke-dasharray:1; animation:application-check-draw var(--icon-cycle) ease-in-out infinite; animation-delay:var(--icon-phase); }
+    .application-feedback-signal { stroke-dasharray:12 120; animation:application-feedback var(--icon-cycle) linear infinite; animation-delay:var(--icon-phase); }
   }
-  @keyframes ph-node {
-    0%, 100% { opacity: 0.55; transform: scale(0.8); }
-    50% { opacity: 1; transform: scale(1.1); }
+  /* Include every SVG part and pseudo-element, so newly added details cannot escape the stop states. */
+  .system-pipeline:is(.is-paused,.is-offscreen,.is-document-hidden) *,
+  .system-pipeline:is(.is-paused,.is-offscreen,.is-document-hidden) *::before,
+  .system-pipeline:is(.is-paused,.is-offscreen,.is-document-hidden) *::after { animation-play-state:paused!important; }
+  @keyframes layer-highlight { 0%,22%,100% { opacity:.2; transform:scale(.94); } 6%,14% { opacity:1; transform:scale(1.05); } }
+  @keyframes node-highlight { 0%,22%,100% { opacity:.5; transform:scale(.85); } 6%,14% { opacity:1; transform:scale(1.25); } }
+  @keyframes forward-signal { 0% { opacity:0; stroke-dashoffset:12; } 1% {opacity:1;} 17% {opacity:1;stroke-dashoffset:-100;} 18%,100% {opacity:0;stroke-dashoffset:-100;} }
+  @keyframes return-signal { 0%,76% {opacity:0;stroke-dashoffset:5;} 77% {opacity:1;} 99% {opacity:1;stroke-dashoffset:-100;} 100% {opacity:0;stroke-dashoffset:-100;} }
+
+  @keyframes data-ingest {
+    0%,8% { opacity:1; transform:translate(0,0) scale(1); }
+    32% { opacity:1; transform:translate(30px,7px) scale(.7); }
+    43%,79% { opacity:0; transform:translate(39px,12px) scale(.45); }
+    80% { opacity:0; transform:translate(-9px,0) scale(1); }
+    93%,100% { opacity:1; transform:translate(0,0) scale(1); }
   }
-  @keyframes ph-pop {
-    0%, 70%, 100% { transform: scale(1); }
-    78% { transform: scale(1.12); }
-  }
-  @keyframes ph-draw {
-    0% { stroke-dashoffset: var(--len, 60); }
-    40%, 100% { stroke-dashoffset: 0; }
-  }
-  @keyframes ph-pulse {
-    0% { opacity: 0; transform: scale(0.7); }
-    35% { opacity: 0.9; }
-    100% { opacity: 0; transform: scale(1.12); }
-  }
-  @keyframes ph-grow {
-    0%, 100% { transform: scaleY(0.55); opacity: 0.7; }
-    50% { transform: scaleY(1); opacity: 1; }
+  @keyframes data-scan { 0%,34% { opacity:0; transform:translateY(-5px); } 40% { opacity:1; transform:translateY(-5px); } 66% { opacity:1; transform:translateY(25px); } 72%,100% { opacity:0; transform:translateY(25px); } }
+  @keyframes data-confirm { 0%,58% { opacity:.3; transform:scale(.8); } 72%,89% { opacity:1; transform:scale(1.08); } 100% { opacity:.3; transform:scale(.8); } }
+  @keyframes data-check-draw { 0%,61% { stroke-dashoffset:1; } 76%,91% { stroke-dashoffset:0; } 100% { stroke-dashoffset:1; } }
+  @keyframes model-transmit { 0% { opacity:0; stroke-dashoffset:16; } 6% { opacity:1; } 56% { opacity:1; stroke-dashoffset:-100; } 63%,100% { opacity:0; stroke-dashoffset:-100; } }
+  @keyframes model-layer-fire { 0%,25%,100% { fill:#f4f9fe; stroke:#1f73b8; transform:scale(1); } 8%,16% { fill:#fcebf7; stroke:#d6409f; transform:scale(1.22); } }
+  @keyframes harness-node-light { 0%,29%,100% { fill:#f4f9fe; stroke:#1f73b8; } 8%,20% { fill:#fcebf7; stroke:#d6409f; } }
+  @keyframes harness-task-read { 0%,5%,29%,100% { transform:translateX(0); } 14%,20% { transform:translateX(3px); } }
+  @keyframes harness-dispatch { 0%,7% { opacity:0; stroke-dashoffset:10; } 9% { opacity:1; } 70% { opacity:1; stroke-dashoffset:-100; } 76%,100% { opacity:0; stroke-dashoffset:-100; } }
+  @keyframes terminal-command { 0%,30%,68%,100% { opacity:.55; transform:translateX(0); } 42%,55% { opacity:1; transform:translateX(4px); } }
+  @keyframes terminal-cursor { 0%,30%,100% { opacity:.4; transform:translateX(0); } 40%,48%,57% { opacity:1; transform:translateX(3px); } 44%,53% { opacity:0; transform:translateX(3px); } 67%,88% { opacity:1; transform:translateX(0); } }
+  @keyframes harness-running { 0%,19% { opacity:.35; transform:scale(.85); } 31%,45%,59% { opacity:1; transform:scale(1.15); } 38%,52% { opacity:.35; transform:scale(.85); } 70%,92% { opacity:0; transform:scale(.85); } 100% { opacity:.35; transform:scale(.85); } }
+  @keyframes harness-progress { 0%,29% { stroke-dashoffset:1; opacity:.4; } 65%,91% { stroke-dashoffset:0; opacity:1; } 100% { stroke-dashoffset:1; opacity:.4; } }
+  @keyframes harness-complete { 0%,63% { opacity:0; stroke-dashoffset:1; } 76%,91% { opacity:1; stroke-dashoffset:0; } 100% { opacity:0; stroke-dashoffset:0; } }
+  @keyframes application-bar-grow { 0%,6%,100% { transform:scaleY(.18); opacity:.5; } 31%,82% { transform:scaleY(1); opacity:.85; } }
+  @keyframes application-chart-draw { 0%,8% { stroke-dashoffset:1; } 43%,87% { stroke-dashoffset:0; } 100% { stroke-dashoffset:1; } }
+  @keyframes application-confirm { 0%,43% { opacity:.25; transform:translateY(4px) scale(.75); } 57%,87% { opacity:1; transform:translateY(0) scale(1); } 100% { opacity:.25; transform:translateY(4px) scale(.75); } }
+  @keyframes application-check-draw { 0%,48% { stroke-dashoffset:1; } 62%,88% { stroke-dashoffset:0; } 100% { stroke-dashoffset:1; } }
+  @keyframes application-feedback { 0%,65% { opacity:0; stroke-dashoffset:12; } 69% { opacity:1; } 91% { opacity:1; stroke-dashoffset:-100; } 97%,100% { opacity:0; stroke-dashoffset:-100; } }
+  @media (max-width:767px) {
+    .pipeline-toolbar { margin-bottom:1rem; align-items:flex-start; }
+    .pipeline-steps { grid-template-columns:1fr; gap:1.1rem; padding-left:.5rem; }
+    .pipeline-step { position:relative; }
+    .pipeline-step:not(:last-child)::after { content:""; position:absolute; left:3.05rem; bottom:-1.12rem; height:1rem; border-left:1.5px dashed #aed3ef; }
+    .pipeline-step-link { flex-direction:row; gap:1.25rem; text-align:left; padding:0; display:grid; grid-template-columns:6.25rem minmax(0,1fr); grid-template-rows:auto auto; column-gap:1rem; row-gap:.25rem; }
+    .pipeline-icon { grid-row:1/3; width:6.25rem; height:6.25rem; }
+    .pipeline-icon svg { width:6rem; height:5.5rem; }
+    .pipeline-icon::before { width:5.5rem; height:5.5rem; }
+    .pipeline-step h3 { align-self:end; margin:0; font-size:1.45rem; }
+    .pipeline-step p { align-self:start; margin:0; font-size:.78rem; }
+    .pipeline-rail { display:none; }
+    .pipeline-feedback { margin:1.75rem auto 0; padding:.6rem .9rem; max-width:100%; border:1px dashed #c5ddec; border-radius:999px; background:#f7fbfe; font-size:.75rem; }
+    .pipeline-feedback>span { display:inline; margin-right:.4rem; }
+    .pipeline-footnote { margin-top:1.2rem; font-size:.68rem; }
   }
 </style>

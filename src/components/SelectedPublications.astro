@@ -1,0 +1,207 @@
+---
+import type { Publication } from "../lib/content";
+
+interface Props {
+  pubs: Publication[];
+}
+const { pubs } = Astro.props;
+---
+
+<ol class="selected-publications" role="list">
+  {
+    pubs.map((p, index) => {
+      const d = p.data;
+      const doiUrl = d.doi ? `https://doi.org/${d.doi}` : undefined;
+      const titleUrl = doiUrl ?? d.url;
+      const venueHasYear = d.journal?.includes(String(d.year));
+      return (
+        <li class="publication">
+          <span class="publication-method">{d.method ?? String(index + 1).padStart(2, "0")}</span>
+          <div class="publication-body">
+            <h3 class="publication-title">
+              {titleUrl ? (
+                <a href={titleUrl} target="_blank" rel="noopener noreferrer">
+                  {d.title}
+                </a>
+              ) : (
+                d.title
+              )}
+            </h3>
+            <p class="publication-authors">
+              {d.authors.map((author, authorIndex) => (
+                <span>
+                  {authorIndex > 0 && ", "}
+                  {author === "Hao Wang" ? <strong>{author}</strong> : author}
+                </span>
+              ))}
+            </p>
+            <p class="publication-venue">
+              {d.journal}
+              {!venueHasYear && <>{d.journal && " · "}{d.year}</>}
+            </p>
+            {d.summary && <p class="publication-summary" lang="zh-CN">{d.summary}</p>}
+            <div class="publication-resources">
+              {d.url && (
+                <a href={d.url} target="_blank" rel="noopener noreferrer" aria-label={`Paper: ${d.title}`}>
+                  Paper
+                </a>
+              )}
+              {d.code && (
+                <a href={d.code} target="_blank" rel="noopener noreferrer" aria-label={`Code: ${d.title}`}>
+                  Code
+                </a>
+              )}
+              {doiUrl && (
+                <a href={doiUrl} target="_blank" rel="noopener noreferrer" aria-label={`DOI: ${d.title}`}>
+                  DOI
+                </a>
+              )}
+            </div>
+            {d.scope && (
+              <details class="publication-scope" lang="zh-CN">
+                <summary>适用范围与边界</summary>
+                <p>{d.scope}</p>
+              </details>
+            )}
+          </div>
+        </li>
+      );
+    })
+  }
+</ol>
+
+<style>
+  .selected-publications {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--color-slate-200, #e2e8f0);
+  }
+
+  .publication {
+    display: grid;
+    grid-template-columns: 7.5rem minmax(0, 1fr);
+    gap: 1.5rem;
+    padding: 1.5rem 0;
+    border-bottom: 1px solid var(--color-slate-200, #e2e8f0);
+  }
+
+  .publication-method {
+    padding-top: 0.2rem;
+    color: var(--color-accent-700, #97226b);
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+  }
+
+  .publication-body {
+    min-width: 0;
+  }
+
+  .publication-title {
+    margin: 0;
+    color: var(--color-primary-950, #08213a);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.6;
+    text-wrap: initial;
+    overflow-wrap: anywhere;
+  }
+
+  .publication-title a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .publication-title a:hover {
+    color: var(--color-primary-700, #124d80);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  .publication-authors,
+  .publication-venue {
+    margin: 0.4rem 0 0;
+    color: var(--color-slate-600, #475569);
+    font-size: 0.8125rem;
+    line-height: 1.8;
+    overflow-wrap: anywhere;
+  }
+
+  .publication-authors strong {
+    color: var(--color-primary-900, #0d3252);
+    font-weight: 600;
+  }
+
+  .publication-venue {
+    margin-top: 0.15rem;
+    color: var(--color-primary-800, #103f68);
+  }
+
+  .publication-summary {
+    margin: 0.65rem 0 0;
+    color: var(--color-slate-700, #334155);
+    font-size: 0.875rem;
+    line-height: 1.85;
+    overflow-wrap: anywhere;
+  }
+
+  .publication-resources {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1rem;
+    margin-top: 0.6rem;
+    font-size: 0.8125rem;
+    line-height: 1.8;
+  }
+
+  .publication-resources a {
+    color: var(--color-primary-700, #124d80);
+    text-decoration: underline;
+    text-decoration-color: var(--color-primary-200, #aed3ef);
+    text-underline-offset: 0.2em;
+  }
+
+  .publication-resources a:hover {
+    color: var(--color-accent-700, #97226b);
+    text-decoration-color: currentColor;
+  }
+
+  .publication-scope {
+    margin-top: 0.5rem;
+    color: var(--color-slate-500, #64748b);
+    font-size: 0.75rem;
+    line-height: 1.8;
+  }
+
+  .publication-scope summary {
+    width: fit-content;
+    max-width: 100%;
+    cursor: pointer;
+  }
+
+  .publication-scope summary:hover {
+    color: var(--color-primary-700, #124d80);
+  }
+
+  .publication-scope p {
+    margin: 0.35rem 0 0;
+    color: var(--color-slate-600, #475569);
+    font-size: 0.8125rem;
+    overflow-wrap: anywhere;
+  }
+
+  @media (max-width: 639px) {
+    .publication {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0.4rem;
+      padding: 1.25rem 0;
+    }
+
+    .publication-method {
+      padding-top: 0;
+    }
+  }
+</style>

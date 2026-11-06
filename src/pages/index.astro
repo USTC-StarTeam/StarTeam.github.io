@@ -1,71 +1,16 @@
 ---
 import { Image } from "astro:assets";
 import BaseLayout from "../components/BaseLayout.astro";
+import PipelineHero from "../components/PipelineHero.astro";
+import ArchitectureCards from "../components/ArchitectureCards.astro";
+import SelectedPublications from "../components/SelectedPublications.astro";
 import { site } from "../data/site";
-import { getCollection } from "astro:content";
-import {
-  getConfirmedFigures,
-  getPublications,
-  featuredMatcher,
-  featuredSorter,
-} from "../lib/content";
-import PubList from "../components/PubList.astro";
+import { getPublications } from "../lib/content";
 import labPhoto from "../assets/gallery/sample-1.jpg";
 
-const figures = await getConfirmedFigures();
-
-const people = await getCollection("people");
-const pubs = await getPublications();
-// Featured = mentee-led or PI first/senior (>=2019), prioritized mentee-led
-// first then most recent.
-const recent = pubs
-  .filter(featuredMatcher(people))
-  .sort(featuredSorter(people))
-  .slice(0, 5);
-
-// "From our work" strip: the most-prominent (lowest-order) figure from each of
-// the top three papers, so the strip showcases range rather than repeating one
-// article. Each figure carries its paper's title + journal as the caption.
-const pubById = new Map(pubs.map((p) => [p.id, p]));
-type StripItem = {
-  figure: (typeof figures)[number];
-  paper: (typeof pubs)[number] | undefined;
-};
-const strip: StripItem[] = [];
-const seenPapers = new Set<string>();
-for (const f of figures) {
-  const pid = f.data.paper.id;
-  if (seenPapers.has(pid)) continue;
-  seenPapers.add(pid);
-  strip.push({ figure: f, paper: pubById.get(pid) });
-  if (strip.length === 3) break;
-}
-
-// Homepage "Research areas" cards. Replace these with your lab's themes; each
-// `href` can deep-link into the Research page's grouped sections (e.g.
-// "/research#your-slug" once you set up the taxonomy in content.config.ts).
-const themes = [
-  {
-    title: "Research area one",
-    href: "/research",
-    body: "A sentence describing this line of work and the questions it asks.",
-  },
-  {
-    title: "Research area two",
-    href: "/research",
-    body: "A sentence describing this line of work and the questions it asks.",
-  },
-  {
-    title: "Research area three",
-    href: "/research",
-    body: "A sentence describing this line of work and the questions it asks.",
-  },
-  {
-    title: "Methods & open tools",
-    href: "/research",
-    body: "Shared resources, datasets, and reproducible pipelines from the lab.",
-  },
-];
+const selected = (await getPublications()).filter(
+  paper => paper.data.featured && paper.data.authors.includes("Hao Wang"),
+);
 ---
 
 <BaseLayout>
@@ -95,119 +40,43 @@ const themes = [
           >
         </div>
       </div>
-      {/* Want a custom illustrated hero? src/components/PipelineHero.astro is a
-          worked example (the Cohen Lab's bedside-to-bedside pipeline). Drop it in
-          here, or ask Claude to generate an SVG hero motif for your own field. */}
     </div>
   </section>
 
-  <!-- Featured figures strip -->
-  {
-    strip.length > 0 && (
-      <section class="border-y border-slate-200 bg-slate-50">
-        <div class="container-page py-14">
-          <div class="mb-7 flex items-end justify-between gap-4">
-            <div>
-              <div class="mb-3 h-0.5 w-10 rounded-full bg-accent-500" />
-              <h2 class="font-serif text-2xl text-slate-900">From our work</h2>
-            </div>
-            <a
-              href="/figures"
-              class="group inline-flex shrink-0 items-center gap-1 text-sm font-medium text-primary-700 transition-colors hover:text-accent-600"
-            >
-              All figures
-              <span
-                class="transition-transform group-hover:translate-x-0.5"
-                aria-hidden="true"
-              >
-                &rarr;
-              </span>
-            </a>
-          </div>
-          <div class="grid gap-5 sm:grid-cols-3">
-            {strip.map(({ figure, paper }) => (
-              <a
-                href="/figures"
-                class="group flex flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-0.5 hover:border-primary-300 hover:shadow-md"
-              >
-                <div class="overflow-hidden bg-slate-50">
-                  <Image
-                    src={figure.data.image}
-                    alt={figure.data.caption}
-                    widths={[400, 800]}
-                    sizes="(min-width: 640px) 30vw, 90vw"
-                    class="aspect-[4/3] w-full object-contain p-3 transition-transform duration-500 ease-out group-hover:scale-[1.03]"
-                  />
-                </div>
-                <div class="flex flex-1 flex-col border-t border-slate-100 p-4">
-                  {paper && (
-                    <p class="text-xs font-medium text-slate-600">
-                      {paper.data.journal && <span>{paper.data.journal}</span>}
-                      {paper.data.journal && " · "}
-                      {paper.data.year}
-                    </p>
-                  )}
-                  <h3 class="mt-1 line-clamp-3 font-serif text-base leading-snug text-slate-900 group-hover:text-primary-700">
-                    {paper ? paper.data.title : figure.data.caption}
-                  </h3>
-                </div>
-              </a>
-            ))}
-          </div>
-        </div>
-      </section>
-    )
-  }
-
-  <!-- Research themes -->
-  <section class="container-page py-16">
-    <div class="mb-3 h-0.5 w-10 rounded-full bg-accent-500"></div>
-    <h2 class="mb-8 font-serif text-2xl text-slate-900">Research areas</h2>
-    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-      {
-        themes.map((t) => (
-          <a
-            href={t.href}
-            class="group rounded-xl border border-slate-200 p-6 transition-colors hover:border-primary-300 hover:bg-primary-50/40"
-          >
-            <h3 class="font-serif text-xl text-slate-900 group-hover:text-primary-700">
-              {t.title}
-            </h3>
-            <p class="mt-2 text-sm text-slate-600">{t.body}</p>
-          </a>
-        ))
-      }
+  <!-- Four cooperating elements: icons, architecture, selected evidence. -->
+  <section class="border-y border-slate-200 bg-white" aria-label="Data, Model, Harness and Application">
+    <div class="container-page py-12 sm:py-14">
+      <PipelineHero />
     </div>
   </section>
 
-  <!-- Recent featured publications -->
-  {
-    recent.length > 0 && (
-      <section class="border-t border-slate-200 bg-slate-50">
-        <div class="container-page py-16">
-          <div class="mb-6 flex items-end justify-between gap-4">
-            <div>
-              <div class="mb-3 h-0.5 w-10 rounded-full bg-accent-500" />
-              <h2 class="font-serif text-2xl text-slate-900">Recent work</h2>
-            </div>
-            <a
-              href="/publications"
-              class="group inline-flex shrink-0 items-center gap-1 text-sm font-medium text-primary-700 transition-colors hover:text-accent-600"
-            >
-              All publications
-              <span
-                class="transition-transform group-hover:translate-x-0.5"
-                aria-hidden="true"
-              >
-                &rarr;
-              </span>
-            </a>
-          </div>
-          <PubList pubs={recent} />
+  <section class="architecture-section" aria-labelledby="architecture-title">
+    <div class="container-page py-14 sm:py-16">
+      <div class="home-section-heading">
+        <div>
+          <div class="mb-3 h-0.5 w-10 rounded-full bg-accent-500"></div>
+          <h2 id="architecture-title" class="font-serif text-3xl text-slate-900">From data to application</h2>
+          <p class="home-section-lead">数据、模型与运行框架，在真实问题中连接。</p>
         </div>
-      </section>
-    )
-  }
+        <p class="home-section-aside">四个要素 · 协同与反馈</p>
+      </div>
+      <ArchitectureCards />
+    </div>
+  </section>
+
+  <section class="border-t border-slate-200 bg-white" aria-labelledby="selected-title">
+    <div class="container-page py-14 sm:py-16">
+      <div class="home-section-heading mb-8">
+        <div>
+          <div class="mb-3 h-0.5 w-10 rounded-full bg-accent-500"></div>
+          <h2 id="selected-title" class="font-serif text-3xl text-slate-900">Selected publications</h2>
+          <p class="home-section-lead">Hao Wang 代表作 · 从具体研究问题，走向可追溯的方法与证据。</p>
+        </div>
+        <span class="home-section-aside">5 SELECTED WORKS</span>
+      </div>
+      <SelectedPublications pubs={selected} />
+    </div>
+  </section>
 
   <!-- Life in the lab -->
   <section class="border-t border-slate-200 bg-white">
@@ -248,3 +117,11 @@ const themes = [
     </div>
   </section>
 </BaseLayout>
+
+<style>
+  .architecture-section { border-bottom:1px solid #e2e8f0; background:linear-gradient(180deg,#f7fafd,#f4f8fc 75%,#f9fbfd); }
+  .home-section-heading { display:flex; align-items:flex-end; justify-content:space-between; gap:1.5rem; }
+  .home-section-lead { margin-top:.7rem; font-size:.875rem; line-height:1.9; color:#526780; }
+  .home-section-aside { flex-shrink:0; font-size:.65rem; line-height:1.8; letter-spacing:.08em; color:#6a7f96; }
+  @media(max-width:639px) { .home-section-heading{align-items:flex-start;flex-direction:column;gap:.8rem;} .home-section-heading h2{font-size:1.75rem;} .home-section-lead{font-size:.82rem;} }
+</style>
