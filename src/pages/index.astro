@@ -6,11 +6,13 @@ import ArchitectureCards from "../components/ArchitectureCards.astro";
 import SelectedPublications from "../components/SelectedPublications.astro";
 import { site } from "../data/site";
 import { getPublications } from "../lib/content";
+import { citationCatalog, comparePublicationsByCitations } from "../data/publication-catalog";
 import labPhoto from "../assets/gallery/sample-1.jpg";
 
-const selected = (await getPublications()).filter(
+const catalog = (await getPublications()).filter(paper => paper.data.catalogId);
+const selected = catalog.filter(
   paper => paper.data.featured && paper.data.authors.includes("Hao Wang"),
-);
+).sort(comparePublicationsByCitations);
 ---
 
 <BaseLayout>
@@ -70,11 +72,12 @@ const selected = (await getPublications()).filter(
         <div>
           <div class="mb-3 h-0.5 w-10 rounded-full bg-accent-500"></div>
           <h2 id="selected-title" class="font-serif text-3xl text-slate-900">Selected publications</h2>
-          <p class="home-section-lead">Hao Wang 代表作 · 从具体研究问题，走向可追溯的方法与证据。</p>
+          <p class="home-section-lead">Hao Wang 代表作 · {citationCatalog.name} 引用数据截至 {citationCatalog.asOf}。</p>
         </div>
-        <span class="home-section-aside">5 SELECTED WORKS</span>
+        <a href="/publications" class="home-publications-link">查看全部 {catalog.length} 篇 <span aria-hidden="true">→</span></a>
       </div>
       <SelectedPublications pubs={selected} />
+      <p class="home-citation-note">按已获取的引用数排序；未获取不等于 0。引用数对应所匹配的单条 OpenAlex 记录，不合并多个版本。</p>
     </div>
   </section>
 
@@ -123,5 +126,8 @@ const selected = (await getPublications()).filter(
   .home-section-heading { display:flex; align-items:flex-end; justify-content:space-between; gap:1.5rem; }
   .home-section-lead { margin-top:.7rem; font-size:.875rem; line-height:1.9; color:#526780; }
   .home-section-aside { flex-shrink:0; font-size:.65rem; line-height:1.8; letter-spacing:.08em; color:#6a7f96; }
+  .home-publications-link { display:inline-flex; align-items:center; gap:.5rem; flex-shrink:0; font-size:.8rem; color:#124d80; padding:.4rem 0; }
+  .home-publications-link:hover { color:#b92d85; }
+  .home-citation-note { margin-top:1.3rem; font-size:.72rem; color:#64748b; line-height:1.9; }
   @media(max-width:639px) { .home-section-heading{align-items:flex-start;flex-direction:column;gap:.8rem;} .home-section-heading h2{font-size:1.75rem;} .home-section-lead{font-size:.82rem;} }
 </style>

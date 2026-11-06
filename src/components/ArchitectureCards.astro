@@ -116,16 +116,16 @@ import { architectureLayers } from "../data/architecture";
   .deck-selector:hover { color:#124d80; background:#f0f7fd; }
   .deck-selector[aria-pressed="true"] { background:#fff; border-color:#c4d9ea; color:#124d80; box-shadow:0 2px 6px #153d6510; }
   .architecture-cards { position:relative; display:grid; grid-template-columns:minmax(0,1fr); align-items:start; margin:0 1.3rem; padding:4.5rem 0 3rem; }
-  .deck-backing { position:absolute; left:3%; right:1%; top:13rem; height:15rem; border:1px solid #d5e3ef; border-radius:1.3rem; background:linear-gradient(150deg,#e5eef7,#edf5fb); transform:perspective(1300px) rotateX(12deg) rotateY(-12deg) rotateZ(-6deg); box-shadow:0 24px 28px -25px #244b7a50; }
+  .deck-backing { position:absolute; left:3%; right:1%; top:13rem; height:15rem; border:1px solid #d5e3ef; border-radius:1.3rem; background:linear-gradient(150deg,#e5eef7,#edf5fb); transform:translate3d(0,0,0); box-shadow:0 24px 28px -25px #244b7a50; }
   .deck-backing::before,.deck-backing::after { content:""; position:absolute; inset:.5rem -.18rem -.5rem .18rem; z-index:-1; border:1px solid #cbdcea; border-radius:inherit; background:#e9f1f8; }
   .deck-backing::after { inset:1rem -.35rem -1rem .35rem; z-index:-2; background:#e1ecf5; }
-  .layer-card { --card-tint:#edf5fc; --card-edge:#bed5e8; position:relative; grid-area:1/1; margin-left:calc(var(--layer) * 18.6%); margin-top:calc(var(--layer) * 2.25rem); width:43%; display:flex; flex-direction:column; min-width:0; min-height:18.5rem; padding:1.35rem 1.6rem 1.05rem; border:1px solid var(--card-edge); border-top-color:#fff; border-radius:1.15rem; background:linear-gradient(140deg,#ffffff 8%,var(--card-tint)); box-shadow:inset 0 1px 0 #fff,0 20px 30px -20px #234d7c55,3px 4px 0 -2px #cddfec; transform:perspective(1300px) translate3d(0,0,0) rotateX(8deg) rotateY(-14deg) rotateZ(-7deg); transform-origin:center; scroll-margin-top:8rem; z-index:calc(var(--layer) + 1); cursor:pointer; transition:transform .65s cubic-bezier(.2,.8,.2,1),box-shadow .45s ease,border-color .45s ease; }
+  .layer-card { --card-tint:#edf5fc; --card-edge:#bed5e8; position:relative; grid-area:1/1; margin-left:calc(var(--layer) * 18.6%); margin-top:calc(var(--layer) * 2.25rem); width:43%; display:flex; flex-direction:column; min-width:0; min-height:18.5rem; padding:1.35rem 1.6rem 1.05rem; border:1px solid var(--card-edge); border-top-color:#fff; border-radius:1.15rem; background:linear-gradient(140deg,#ffffff 8%,var(--card-tint)); box-shadow:inset 0 1px 0 #fff,0 20px 30px -20px #234d7c55,3px 4px 0 -2px #cddfec; transform:translate3d(0,0,0); transform-origin:center; scroll-margin-top:8rem; z-index:calc(var(--layer) + 1); cursor:pointer; transition:transform .65s cubic-bezier(.2,.8,.2,1),box-shadow .45s ease,border-color .45s ease; }
   .layer-model { --card-tint:#edf2fc; --card-edge:#c3d1e8; }
   .layer-harness { --card-tint:#f0effb; --card-edge:#cecae6; }
   .layer-application { --card-tint:#edf7f5; --card-edge:#bedbd6; }
-  .architecture-stage[data-enhanced]:not(.is-ready) .layer-card { transform:perspective(1300px) translate3d(calc((1.5 - var(--layer)) * 43.25%),calc((1.5 - var(--layer)) * 2.25rem),0) rotateX(14deg) rotateY(-18deg) rotateZ(-9deg); }
+  .architecture-stage[data-enhanced]:not(.is-ready) .layer-card { transform:translate3d(calc((1.5 - var(--layer)) * 43.25%),calc((1.5 - var(--layer)) * 2.25rem),0); }
   .architecture-stage.is-ready:not(.has-entered) .layer-card { animation:deck-draw .95s cubic-bezier(.16,1,.3,1) both; animation-delay:calc(var(--layer) * .12s); }
-  .layer-card.is-extracted { z-index:20; transform:perspective(1300px) translate3d(0,-2.8rem,2rem) rotateX(0) rotateY(-2deg) rotateZ(-1deg); border-color:#84b6db; box-shadow:0 28px 40px -20px #173f6e70,0 2px 5px #204a7820; }
+  .layer-card.is-extracted { z-index:20; transform:translate3d(0,-2.8rem,0); border-color:#84b6db; box-shadow:0 28px 40px -20px #173f6e70,0 2px 5px #204a7820; }
   .architecture-stage.is-ready .layer-card.is-extracted { animation:none; }
   .card-topline { display:flex; align-items:center; justify-content:space-between; gap:.5rem; margin-bottom:.6rem; color:#61768f; font-size:.6rem; letter-spacing:.12em; line-height:1.5; }
   .card-extract { display:grid; place-items:center; width:1.75rem; height:1.75rem; flex-shrink:0; margin:-.25rem -.5rem -.15rem 0; border:1px solid #cfdeeb; border-radius:50%; background:#ffffffa8; color:#8da7bd; cursor:pointer; }
@@ -146,8 +146,8 @@ import { architectureLayers } from "../data/architecture";
   .deck-reset:hover { color:#b92d85; }
   .architecture-note { margin:1.75rem auto 0; text-align:center; font-size:.76rem; color:#526780; line-height:1.9; }
   @keyframes deck-draw {
-    from { transform:perspective(1300px) translate3d(calc((1.5 - var(--layer)) * 43.25%),calc((1.5 - var(--layer)) * 2.25rem),0) rotateX(14deg) rotateY(-18deg) rotateZ(-9deg); }
-    to { transform:perspective(1300px) translate3d(0,0,0) rotateX(8deg) rotateY(-14deg) rotateZ(-7deg); }
+    from { transform:translate3d(calc((1.5 - var(--layer)) * 43.25%),calc((1.5 - var(--layer)) * 2.25rem),0); }
+    to { transform:translate3d(0,0,0); }
   }
   @media(max-width:1023px) {
     .deck-toolbar { flex-direction:column; align-items:flex-start; }
@@ -155,14 +155,14 @@ import { architectureLayers } from "../data/architecture";
     .layer-card { width:68%; margin-left:0; margin-top:0; min-height:18rem; padding:1.25rem 1.5rem; }
     .layer-card:nth-of-type(even) { margin-left:28%; margin-top:2.25rem; }
     .layer-harness,.layer-application { grid-area:2/1; }
-    .deck-backing { left:8%; right:8%; top:15rem; bottom:3rem; height:auto; transform:perspective(1300px) rotateY(-10deg) rotateZ(-2deg); }
+    .deck-backing { left:8%; right:8%; top:15rem; bottom:3rem; height:auto; transform:translate3d(0,0,0); }
     .layer-card h3 { font-size:1.65rem; }
-    .architecture-stage[data-enhanced]:not(.is-ready) .layer-card { transform:perspective(1300px) translate3d(0,2rem,0) rotateY(-12deg) rotateZ(-7deg); }
+    .architecture-stage[data-enhanced]:not(.is-ready) .layer-card { transform:translate3d(0,2rem,0); }
     .architecture-stage.is-ready .layer-card { animation-name:deck-draw-small; }
   }
   @keyframes deck-draw-small {
-    from { opacity:.6; transform:perspective(1300px) translate3d(-12%,3rem,0) rotateX(10deg) rotateY(-16deg) rotateZ(-9deg); }
-    to { opacity:1; transform:perspective(1300px) translate3d(0,0,0) rotateX(8deg) rotateY(-14deg) rotateZ(-7deg); }
+    from { opacity:.6; transform:translate3d(-12%,3rem,0); }
+    to { opacity:1; transform:translate3d(0,0,0); }
   }
   @media(max-width:599px) {
     .architecture-stage { padding-top:1.25rem; }
@@ -172,10 +172,10 @@ import { architectureLayers } from "../data/architecture";
     .deck-selectors { width:100%; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.2rem; }
     .deck-selector { font-size:.72rem; padding:.45rem .4rem; justify-content:flex-start; }
     .architecture-cards { display:flex; flex-direction:column; min-height:0; margin:2rem .55rem 1.5rem; padding:0; }
-    .deck-backing { inset:2rem -.2rem 0; height:auto; transform:rotateZ(-1deg); border-radius:1rem; }
-    .layer-card,.layer-card:nth-of-type(even) { position:relative; width:100%; margin-left:0; min-height:0; padding:1.2rem 1.25rem; transform:perspective(1300px) rotateX(2deg) rotateY(-3deg) rotateZ(-2deg); margin-top:-1.6rem; }
+    .deck-backing { inset:2rem -.2rem 0; height:auto; transform:translate3d(0,0,0); border-radius:1rem; }
+    .layer-card,.layer-card:nth-of-type(even) { position:relative; width:100%; margin-left:0; min-height:0; padding:1.2rem 1.25rem; transform:translate3d(0,0,0); margin-top:-1.6rem; }
     .layer-card:first-of-type { margin-top:0; }
-    .layer-card.is-extracted { transform:translate3d(0,-1rem,0) rotateZ(0); }
+    .layer-card.is-extracted { transform:translate3d(0,-1rem,0); }
     .architecture-stage.is-ready .layer-card { animation-name:deck-draw-mobile; }
     .architecture-stage.is-ready .layer-card.is-extracted { animation:none; }
     .card-topline { font-size:.58rem; }
@@ -190,8 +190,8 @@ import { architectureLayers } from "../data/architecture";
     .architecture-note { margin-top:1rem; }
   }
   @keyframes deck-draw-mobile {
-    from { opacity:.6; transform:translate3d(-.5rem,2.5rem,0) rotateZ(-5deg); }
-    to { opacity:1; transform:perspective(1300px) rotateX(2deg) rotateY(-3deg) rotateZ(-2deg); }
+    from { opacity:.6; transform:translate3d(-.5rem,2.5rem,0); }
+    to { opacity:1; transform:translate3d(0,0,0); }
   }
   @media(prefers-reduced-motion:reduce) {
     .layer-card { transition:none; }

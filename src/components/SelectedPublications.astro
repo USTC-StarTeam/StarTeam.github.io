@@ -3,64 +3,95 @@ import type { Publication } from "../lib/content";
 
 interface Props {
   pubs: Publication[];
+  id?: string;
+  showCitationMetadata?: boolean;
 }
-const { pubs } = Astro.props;
+const { pubs, id, showCitationMetadata = true } = Astro.props;
+const formatCount = new Intl.NumberFormat("en-US");
 ---
 
-<ol class="selected-publications" role="list">
+<ol id={id} class="selected-publications" role="list">
   {
-    pubs.map((p, index) => {
+    pubs.map((p) => {
       const d = p.data;
       const doiUrl = d.doi ? `https://doi.org/${d.doi}` : undefined;
-      const titleUrl = doiUrl ?? d.url;
+      const titleUrl = d.url ?? doiUrl;
       const venueHasYear = d.journal?.includes(String(d.year));
+      const hasCitation = typeof d.citations === "number" && Number.isFinite(d.citations);
+      const citationVisible = showCitationMetadata && (Boolean(d.catalogId) || hasCitation);
+      const researchTopics = d.researchTopics ?? [];
+      const search = [d.title, ...d.authors, d.method, d.journal, d.category, ...researchTopics, d.year]
+        .filter(Boolean).join(" ").normalize("NFKC").toLowerCase();
+      const notes = [d.citationNote, d.verificationNote].filter(Boolean);
       return (
-        <li class="publication">
-          <span class="publication-method">{d.method ?? String(index + 1).padStart(2, "0")}</span>
+        <li
+          class="publication"
+          data-pub
+          data-publication-id={p.id}
+          data-catalog-id={d.catalogId ?? ""}
+          data-title={d.title}
+          data-search={search}
+          data-year={d.year}
+          data-category={d.category ?? ""}
+          data-citations={hasCitation ? d.citations : ""}
+          data-citation-known={String(hasCitation)}
+        >
+          <div class="publication-rail">
+            <span class="publication-method">{d.method ?? d.catalogId ?? String(d.year)}</span>
+            {citationVisible && (
+              <span
+                class:list={["publication-citations", { "citation-missing": !hasCitation }]}
+                title={hasCitation ? "OpenAlex 匹配到的单条记录引用数，非所有版本合计。" : "未获取引用数，不能视为零引用。"}
+              >
+                {hasCitation ? <><span>OpenAlex</span><strong>{formatCount.format(d.citations!)}</strong></> : "引用未获取"}
+              </span>
+            )}
+          </div>
           <div class="publication-body">
             <h3 class="publication-title">
               {titleUrl ? (
-                <a href={titleUrl} target="_blank" rel="noopener noreferrer">
-                  {d.title}
-                </a>
-              ) : (
-                d.title
-              )}
+                <a href={titleUrl} target="_blank" rel="noopener noreferrer">{d.title}</a>
+              ) : d.title}
             </h3>
-            <p class="publication-authors">
-              {d.authors.map((author, authorIndex) => (
-                <span>
-                  {authorIndex > 0 && ", "}
-                  {author === "Hao Wang" ? <strong>{author}</strong> : author}
-                </span>
-              ))}
-            </p>
+            {d.authors.length > 0 && (
+              <p class="publication-authors">
+                {d.authors.map((author, authorIndex) => (
+                  <Fragment>
+                    {authorIndex > 0 && ", "}
+                    {author === "Hao Wang" ? <strong>{author}</strong> : author}
+                  </Fragment>
+                ))}
+              </p>
+            )}
             <p class="publication-venue">
               {d.journal}
               {!venueHasYear && <>{d.journal && " · "}{d.year}</>}
+              {d.publicationStatus && !d.journal?.includes(d.publicationStatus) && <span class="publication-status">{d.publicationStatus}</span>}
             </p>
+            {(d.category || researchTopics.length > 0) && (
+              <p class="publication-topics" lang="zh-CN">
+                {d.category && <span class="publication-category">{d.category}</span>}
+                {researchTopics.map(topic => <span>{topic}</span>)}
+              </p>
+            )}
             {d.summary && <p class="publication-summary" lang="zh-CN">{d.summary}</p>}
-            <div class="publication-resources">
-              {d.url && (
-                <a href={d.url} target="_blank" rel="noopener noreferrer" aria-label={`Paper: ${d.title}`}>
-                  Paper
-                </a>
-              )}
-              {d.code && (
-                <a href={d.code} target="_blank" rel="noopener noreferrer" aria-label={`Code: ${d.title}`}>
-                  Code
-                </a>
-              )}
-              {doiUrl && (
-                <a href={doiUrl} target="_blank" rel="noopener noreferrer" aria-label={`DOI: ${d.title}`}>
-                  DOI
-                </a>
-              )}
-            </div>
+            {(d.url || d.code || doiUrl) && (
+              <div class="publication-resources">
+                {d.url && <a href={d.url} target="_blank" rel="noopener noreferrer" aria-label={`Paper: ${d.title}`}>Paper</a>}
+                {d.code && <a href={d.code} target="_blank" rel="noopener noreferrer" aria-label={`Code: ${d.title}`}>Code</a>}
+                {doiUrl && <a href={doiUrl} target="_blank" rel="noopener noreferrer" aria-label={`DOI: ${d.title}`}>DOI</a>}
+              </div>
+            )}
             {d.scope && (
-              <details class="publication-scope" lang="zh-CN">
+              <details class="publication-note publication-scope" lang="zh-CN">
                 <summary>适用范围与边界</summary>
                 <p>{d.scope}</p>
+              </details>
+            )}
+            {showCitationMetadata && notes.length > 0 && (
+              <details class="publication-note" lang="zh-CN">
+                <summary>引用与核实说明</summary>
+                {notes.map(note => <p>{note}</p>)}
               </details>
             )}
           </div>
@@ -77,28 +108,37 @@ const { pubs } = Astro.props;
     list-style: none;
     border-top: 1px solid var(--color-slate-200, #e2e8f0);
   }
-
   .publication {
     display: grid;
     grid-template-columns: 7.5rem minmax(0, 1fr);
     gap: 1.5rem;
-    padding: 1.5rem 0;
+    padding: 1.6rem 0;
     border-bottom: 1px solid var(--color-slate-200, #e2e8f0);
   }
-
+  .publication[hidden] { display: none; }
+  .publication-rail { min-width: 0; padding-top: 0.2rem; }
   .publication-method {
-    padding-top: 0.2rem;
+    display: block;
     color: var(--color-accent-700, #97226b);
     font-size: 0.75rem;
     font-weight: 600;
     line-height: 1.6;
     overflow-wrap: anywhere;
   }
-
-  .publication-body {
-    min-width: 0;
+  .publication-citations {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.25rem 0.45rem;
+    margin-top: 0.65rem;
+    color: var(--color-slate-600, #475569);
+    font-size: 0.6875rem;
+    line-height: 1.7;
+    font-variant-numeric: tabular-nums;
   }
-
+  .publication-citations strong { color: var(--color-primary-800, #103f68); font-size: 1.125rem; font-weight: 500; }
+  .citation-missing { color: var(--color-slate-500, #64748b); }
+  .publication-body { min-width: 0; }
   .publication-title {
     margin: 0;
     color: var(--color-primary-950, #08213a);
@@ -109,18 +149,8 @@ const { pubs } = Astro.props;
     text-wrap: initial;
     overflow-wrap: anywhere;
   }
-
-  .publication-title a {
-    color: inherit;
-    text-decoration: none;
-  }
-
-  .publication-title a:hover {
-    color: var(--color-primary-700, #124d80);
-    text-decoration: underline;
-    text-underline-offset: 0.2em;
-  }
-
+  .publication-title a { color: inherit; text-decoration: none; }
+  .publication-title a:hover { color: var(--color-primary-700, #124d80); text-decoration: underline; text-underline-offset: 0.2em; }
   .publication-authors,
   .publication-venue {
     margin: 0.4rem 0 0;
@@ -129,79 +159,25 @@ const { pubs } = Astro.props;
     line-height: 1.8;
     overflow-wrap: anywhere;
   }
-
-  .publication-authors strong {
-    color: var(--color-primary-900, #0d3252);
-    font-weight: 600;
-  }
-
-  .publication-venue {
-    margin-top: 0.15rem;
-    color: var(--color-primary-800, #103f68);
-  }
-
-  .publication-summary {
-    margin: 0.65rem 0 0;
-    color: var(--color-slate-700, #334155);
-    font-size: 0.875rem;
-    line-height: 1.85;
-    overflow-wrap: anywhere;
-  }
-
-  .publication-resources {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.25rem 1rem;
-    margin-top: 0.6rem;
-    font-size: 0.8125rem;
-    line-height: 1.8;
-  }
-
-  .publication-resources a {
-    color: var(--color-primary-700, #124d80);
-    text-decoration: underline;
-    text-decoration-color: var(--color-primary-200, #aed3ef);
-    text-underline-offset: 0.2em;
-  }
-
-  .publication-resources a:hover {
-    color: var(--color-accent-700, #97226b);
-    text-decoration-color: currentColor;
-  }
-
-  .publication-scope {
-    margin-top: 0.5rem;
-    color: var(--color-slate-500, #64748b);
-    font-size: 0.75rem;
-    line-height: 1.8;
-  }
-
-  .publication-scope summary {
-    width: fit-content;
-    max-width: 100%;
-    cursor: pointer;
-  }
-
-  .publication-scope summary:hover {
-    color: var(--color-primary-700, #124d80);
-  }
-
-  .publication-scope p {
-    margin: 0.35rem 0 0;
-    color: var(--color-slate-600, #475569);
-    font-size: 0.8125rem;
-    overflow-wrap: anywhere;
-  }
-
+  .publication-authors strong { color: var(--color-primary-900, #0d3252); font-weight: 600; }
+  .publication-venue { margin-top: 0.25rem; color: var(--color-primary-800, #103f68); }
+  .publication-status { margin-left: 0.65rem; color: var(--color-slate-500, #64748b); font-size: 0.75rem; }
+  .publication-topics { display: flex; flex-wrap: wrap; gap: 0.3rem 0.7rem; margin: 0.55rem 0 0; color: var(--color-slate-500, #64748b); font-size: 0.6875rem; line-height: 1.8; }
+  .publication-topics>span { max-width: 100%; overflow-wrap: anywhere; }
+  .publication-category { color: var(--color-primary-700, #124d80); }
+  .publication-summary { margin: 0.65rem 0 0; color: var(--color-slate-700, #334155); font-size: 0.875rem; line-height: 1.85; overflow-wrap: anywhere; }
+  .publication-resources { display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; margin-top: 0.6rem; font-size: 0.8125rem; line-height: 1.8; }
+  .publication-resources a { color: var(--color-primary-700, #124d80); text-decoration: underline; text-decoration-color: var(--color-primary-200, #aed3ef); text-underline-offset: 0.2em; }
+  .publication-resources a:hover { color: var(--color-accent-700, #97226b); text-decoration-color: currentColor; }
+  .publication-note { margin-top: 0.5rem; color: var(--color-slate-500, #64748b); font-size: 0.75rem; line-height: 1.8; }
+  .publication-note summary { width: fit-content; max-width: 100%; cursor: pointer; }
+  .publication-note summary:hover { color: var(--color-primary-700, #124d80); }
+  .publication-note p { margin: 0.35rem 0 0; color: var(--color-slate-600, #475569); font-size: 0.8125rem; overflow-wrap: anywhere; }
   @media (max-width: 639px) {
-    .publication {
-      grid-template-columns: minmax(0, 1fr);
-      gap: 0.4rem;
-      padding: 1.25rem 0;
-    }
-
-    .publication-method {
-      padding-top: 0;
-    }
+    .publication { grid-template-columns: minmax(0, 1fr); gap: 0.5rem; padding: 1.35rem 0; }
+    .publication-rail { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 0.3rem 1rem; padding-top: 0; }
+    .publication-method { min-width: 0; }
+    .publication-citations { margin-top: 0; }
+    .publication-citations strong { font-size: 1rem; }
   }
 </style>
