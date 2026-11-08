@@ -11,6 +11,9 @@ const catalog = (await getPublications()).filter(paper => paper.data.catalogId);
 const selected = catalog.filter(
   paper => paper.data.featured && paper.data.authors.includes("Hao Wang"),
 ).sort(comparePublicationsByCitations);
+const basePath = import.meta.env.BASE_URL.endsWith("/")
+  ? import.meta.env.BASE_URL
+  : `${import.meta.env.BASE_URL}/`;
 ---
 
 <BaseLayout>
@@ -29,12 +32,12 @@ const selected = catalog.filter(
         <p class="mx-auto mt-6 max-w-2xl text-lg text-slate-600">{site.description}</p>
         <div class="mt-8 flex flex-wrap justify-center gap-3">
           <a
-            href="/research"
+            href={`${basePath}research`}
             class="rounded-md bg-primary-700 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-800"
             >了解研究方向</a
           >
           <a
-            href="/people"
+            href={`${basePath}people`}
             class="rounded-md border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
             >认识团队</a
           >
@@ -72,7 +75,7 @@ const selected = catalog.filter(
           <h2 id="selected-title" class="font-serif text-3xl text-slate-900">代表性论文</h2>
           <p class="home-section-lead">王皓老师代表作 · {citationCatalog.name} 引用数据截至 {citationCatalog.asOf}。</p>
         </div>
-        <a href="/publications" class="home-publications-link">查看全部 {catalog.length} 篇 <span aria-hidden="true">→</span></a>
+        <a href={`${basePath}publications`} class="home-publications-link">查看全部 {catalog.length} 篇 <span aria-hidden="true">→</span></a>
       </div>
       <SelectedPublications pubs={selected} />
     </div>

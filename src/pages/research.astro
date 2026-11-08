@@ -8,6 +8,9 @@ import { getPublications } from "../lib/content";
 
 const publications = await getPublications();
 const publicationsById = new Map(publications.map((paper) => [paper.id, paper]));
+const basePath = import.meta.env.BASE_URL.endsWith("/")
+  ? import.meta.env.BASE_URL
+  : `${import.meta.env.BASE_URL}/`;
 ---
 
 <BaseLayout
@@ -74,7 +77,7 @@ const publicationsById = new Map(publications.map((paper) => [paper.id, paper]))
                   );
                 })}
               </div>
-              <a class="research-layer-all-papers" href="/publications">查看全部论文 <span aria-hidden="true">→</span></a>
+              <a class="research-layer-all-papers" href={`${basePath}publications`}>查看全部论文 <span aria-hidden="true">→</span></a>
             </section>
           );
         })}

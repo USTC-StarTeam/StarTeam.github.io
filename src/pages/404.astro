@@ -1,5 +1,8 @@
 ---
 import BaseLayout from "../components/BaseLayout.astro";
+const basePath = import.meta.env.BASE_URL.endsWith("/")
+  ? import.meta.env.BASE_URL
+  : `${import.meta.env.BASE_URL}/`;
 ---
 
 <BaseLayout title="Page not found">
@@ -11,7 +14,7 @@ import BaseLayout from "../components/BaseLayout.astro";
       site rebuild.
     </p>
     <a
-      href="/"
+      href={basePath}
       class="mt-8 rounded-md bg-primary-700 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-800"
       >Back to home</a
     >
