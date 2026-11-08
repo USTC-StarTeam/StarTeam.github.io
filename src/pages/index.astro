@@ -1,5 +1,4 @@
 ---
-import { Image } from "astro:assets";
 import BaseLayout from "../components/BaseLayout.astro";
 import PipelineHero from "../components/PipelineHero.astro";
 import ArchitectureCards from "../components/ArchitectureCards.astro";
@@ -7,7 +6,6 @@ import SelectedPublications from "../components/SelectedPublications.astro";
 import { site } from "../data/site";
 import { getPublications } from "../lib/content";
 import { citationCatalog, comparePublicationsByCitations } from "../data/publication-catalog";
-import labPhoto from "../assets/gallery/sample-1.jpg";
 
 const catalog = (await getPublications()).filter(paper => paper.data.catalogId);
 const selected = catalog.filter(
@@ -33,12 +31,12 @@ const selected = catalog.filter(
           <a
             href="/research"
             class="rounded-md bg-primary-700 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-800"
-            >Explore our research</a
+            >了解研究方向</a
           >
           <a
             href="/people"
             class="rounded-md border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
-            >Meet the team</a
+            >认识团队</a
           >
         </div>
       </div>
@@ -57,8 +55,8 @@ const selected = catalog.filter(
       <div class="home-section-heading">
         <div>
           <div class="mb-3 h-0.5 w-10 rounded-full bg-accent-500"></div>
-          <h2 id="architecture-title" class="font-serif text-3xl text-slate-900">From data to application</h2>
-          <p class="home-section-lead">数据、模型与运行框架，在真实问题中连接。</p>
+          <h2 id="architecture-title" class="font-serif text-3xl text-slate-900">从数据到应用</h2>
+          <p class="home-section-lead">以数据为基础，让模型与运行框架在真实任务中协同演进。</p>
         </div>
         <p class="home-section-aside">四个要素 · 协同与反馈</p>
       </div>
@@ -71,63 +69,23 @@ const selected = catalog.filter(
       <div class="home-section-heading mb-8">
         <div>
           <div class="mb-3 h-0.5 w-10 rounded-full bg-accent-500"></div>
-          <h2 id="selected-title" class="font-serif text-3xl text-slate-900">Selected publications</h2>
-          <p class="home-section-lead">Hao Wang 代表作 · {citationCatalog.name} 引用数据截至 {citationCatalog.asOf}。</p>
+          <h2 id="selected-title" class="font-serif text-3xl text-slate-900">代表性论文</h2>
+          <p class="home-section-lead">王皓老师代表作 · {citationCatalog.name} 引用数据截至 {citationCatalog.asOf}。</p>
         </div>
         <a href="/publications" class="home-publications-link">查看全部 {catalog.length} 篇 <span aria-hidden="true">→</span></a>
       </div>
       <SelectedPublications pubs={selected} />
-      <p class="home-citation-note">按已获取的引用数排序；未获取不等于 0。引用数对应所匹配的单条 OpenAlex 记录，不合并多个版本。</p>
     </div>
   </section>
 
-  <!-- Life in the lab -->
-  <section class="border-t border-slate-200 bg-white">
-    <div class="container-page py-16">
-      <div class="grid items-center gap-10 lg:grid-cols-2">
-        <div>
-          <div class="mb-3 h-0.5 w-10 rounded-full bg-accent-500"></div>
-          <h2 class="font-serif text-2xl text-slate-900">Life in the lab</h2>
-          <p class="mt-4 max-w-prose text-slate-600">
-            Science is a team sport. Beyond the bench, we celebrate milestones,
-            travel to conferences, and get out together. Add your own photos in
-            <code>src/content/gallery/</code>.
-          </p>
-          <a
-            href="/lab-life"
-            class="group mt-6 inline-flex items-center gap-1 text-sm font-medium text-primary-700 transition-colors hover:text-accent-600"
-          >
-            Explore lab life
-            <span
-              class="transition-transform group-hover:translate-x-0.5"
-              aria-hidden="true">&rarr;</span
-            >
-          </a>
-        </div>
-        <a
-          href="/lab-life"
-          class="group block overflow-hidden rounded-2xl border border-slate-200 shadow-sm"
-        >
-          <Image
-            src={labPhoto}
-            alt="Lab team photo"
-            widths={[600, 1000]}
-            sizes="(min-width: 1024px) 45vw, 90vw"
-            class="aspect-[16/9] w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
-          />
-        </a>
-      </div>
-    </div>
-  </section>
 </BaseLayout>
 
 <style>
   .architecture-section { border-bottom:1px solid #e2e8f0; background:linear-gradient(180deg,#f7fafd,#f4f8fc 75%,#f9fbfd); }
   .home-section-heading { display:flex; align-items:flex-end; justify-content:space-between; gap:1.5rem; }
-  .home-section-lead { margin-top:.7rem; font-size:.875rem; line-height:1.9; color:#526780; }
-  .home-section-aside { flex-shrink:0; font-size:.65rem; line-height:1.8; letter-spacing:.08em; color:#6a7f96; }
-  .home-publications-link { display:inline-flex; align-items:center; gap:.5rem; flex-shrink:0; font-size:.8rem; color:#124d80; padding:.4rem 0; }
+  .home-section-lead { margin-top:.7rem; font-size:.96rem; line-height:1.9; color:#526780; }
+  .home-section-aside { flex-shrink:0; font-size:.75rem; line-height:1.8; letter-spacing:.08em; color:#6a7f96; }
+  .home-publications-link { display:inline-flex; align-items:center; gap:.5rem; flex-shrink:0; font-size:.9rem; color:#124d80; padding:.4rem 0; }
   .home-publications-link:hover { color:#b92d85; }
-  .home-citation-note { margin-top:1.3rem; font-size:.72rem; color:#64748b; line-height:1.9; }
-  @media(max-width:639px) { .home-section-heading{align-items:flex-start;flex-direction:column;gap:.8rem;} .home-section-heading h2{font-size:1.75rem;} .home-section-lead{font-size:.82rem;} }
+  @media(max-width:639px) { .home-section-heading{align-items:flex-start;flex-direction:column;gap:.8rem;} .home-section-heading h2{font-size:1.75rem;} .home-section-lead{font-size:.9rem;} }
 </style>

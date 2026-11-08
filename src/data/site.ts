@@ -20,7 +20,7 @@ export interface SiteConfig {
   url: string;
   description: string;
   email: string;
-  phone: string;
+  phone?: string;
   address: string[];
   mapQuery: string;
   social: {
@@ -32,36 +32,29 @@ export interface SiteConfig {
 }
 
 export const site: SiteConfig = {
-  name: "Example Laboratory",
-  shortName: "Example Lab",
-  pi: "Jane Doe, PhD",
-  institution: "Your Institution",
-  university: "Your University",
-  // Your production URL (used for canonical links + sitemap). Set your domain.
-  url: "https://example.com",
+  name: "StarTeam",
+  shortName: "StarTeam",
+  pi: "王皓（Hao Wang）",
+  institution: "计算机科学与技术学院",
+  university: "中国科学技术大学",
+  url: "https://ustc-starteam.github.io",
   description:
-    "One or two sentences describing what your lab studies and why it matters. " +
-    "This shows as the homepage lead and the default meta description.",
-  email: "lab@example.edu",
-  phone: "000-000-0000",
+    "StarTeam 关注以数据为中心的人工智能，研究数据、模型与运行系统如何协同演进，并将方法应用于推荐系统、大语言模型与 AI for Science。",
+  email: "wanghao3@ustc.edu.cn",
   address: [
-    "Example Laboratory",
-    "Your Department",
-    "123 University Way",
-    "City, ST 00000",
+    "中国科学技术大学高新校区",
+    "新知楼 B709",
+    "安徽省合肥市 230027",
   ],
-  mapQuery: "123 University Way, City, ST 00000",
+  mapQuery: "B709, Xinzhi Building, USTC High-tech Campus, Hefei, Anhui, China 230027",
   social: {
-    scholar: "https://scholar.google.com/citations?user=XXXXXXXX&hl=en",
-    // twitter: "https://twitter.com/yourhandle",
-    // github: "https://github.com/yourorg",
+    scholar: "https://scholar.google.com/citations?user=ou4Miu4AAAAJ&hl=zh-CN",
+    github: "https://github.com/USTC-StarTeam",
   },
   nav: [
-    { label: "People", href: "/people" },
-    { label: "Research", href: "/research" },
-    { label: "Publications", href: "/publications" },
-    { label: "Figures", href: "/figures" },
-    { label: "Lab Life", href: "/lab-life" },
-    { label: "Contact", href: "/contact" },
+    { label: "团队", href: "/people" },
+    { label: "研究", href: "/research" },
+    { label: "论文", href: "/publications" },
+    { label: "联系", href: "/contact" },
   ],
 };

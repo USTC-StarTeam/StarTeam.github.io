@@ -23,29 +23,25 @@ const linkClass =
         {site.institution} · {site.university}
       </p>
       <p class="mt-1 text-sm text-slate-600">
-        Principal Investigator: {site.pi}
+        负责人：{site.pi}
       </p>
     </div>
 
     <div>
       <h2 class="text-sm font-semibold tracking-wide text-slate-600 uppercase">
-        Contact
+        联系方式
       </h2>
       <ul class="mt-3 space-y-1 text-sm">
         <li>
           <a href={`mailto:${site.email}`} class={linkClass}>{site.email}</a>
         </li>
-        <li>
-          <a href={`tel:${site.phone.replace(/[^0-9+]/g, "")}`} class={linkClass}>
-            {site.phone}
-          </a>
-        </li>
+        {site.phone && <li><a href={`tel:${site.phone.replace(/[^0-9+]/g, "")}`} class={linkClass}>{site.phone}</a></li>}
       </ul>
     </div>
 
     <div>
       <h2 class="text-sm font-semibold tracking-wide text-slate-600 uppercase">
-        Elsewhere
+        相关链接
       </h2>
       <ul class="mt-3 space-y-1 text-sm">
         {
@@ -71,7 +67,7 @@ const linkClass =
       class="container-page flex flex-col gap-1 py-4 text-xs text-slate-600 sm:flex-row sm:items-center sm:justify-between"
     >
       <p>© {year} {site.name}.</p>
-      <p>Built with Astro &amp; Tailwind CSS.</p>
+      <p>以数据为中心的人工智能研究</p>
     </div>
   </div>
 </footer>

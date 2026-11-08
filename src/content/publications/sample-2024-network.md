@@ -6,7 +6,6 @@ journal: "Example Journal"
 doi: "10.0000/example.2024.001"
 citations: 12
 piFirstOrSenior: true
-featured: true
 openAccess: true
 areas: ["topic-one"]
 ---

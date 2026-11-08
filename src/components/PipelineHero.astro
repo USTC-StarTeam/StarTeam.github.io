@@ -5,10 +5,6 @@ import { architectureLayers } from "../data/architecture";
 <div class="system-pipeline" data-system-pipeline>
   <div class="pipeline-toolbar">
     <p>从数据到应用，连接系统的四个要素</p>
-    <button class="motion-control" type="button" aria-pressed="false" data-motion-toggle>
-      <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M5 4v8M11 4v8" /></svg>
-      <span data-motion-label>暂停动效</span>
-    </button>
   </div>
   <div class="pipeline-diagram">
     <svg class="pipeline-rail" viewBox="0 0 1000 260" preserveAspectRatio="none" aria-hidden="true">
@@ -79,27 +75,10 @@ import { architectureLayers } from "../data/architecture";
     </ol>
     <p class="pipeline-feedback"><span aria-hidden="true">↶</span> 应用反馈，驱动下一轮改进</p>
   </div>
-  <p class="pipeline-footnote">四个要素协同作用；连线表达研究联系与反馈，不限定为单向执行流程。</p>
 </div>
 
 <script>
   const pipeline = document.querySelector<HTMLElement>("[data-system-pipeline]");
-  const motionToggle = pipeline?.querySelector<HTMLButtonElement>("[data-motion-toggle]");
-  const motionLabel = pipeline?.querySelector<HTMLElement>("[data-motion-label]");
-  const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
-  let userPaused = false;
-  const syncMotion = () => {
-    const reduced = motionPreference.matches;
-    pipeline?.classList.toggle("is-paused", userPaused || reduced);
-    if (motionToggle) {
-      motionToggle.disabled = reduced;
-      motionToggle.setAttribute("aria-pressed", String(userPaused || reduced));
-    }
-    if (motionLabel) motionLabel.textContent = reduced ? "已减少动效" : userPaused ? "播放动效" : "暂停动效";
-  };
-  motionToggle?.addEventListener("click", () => { userPaused = !userPaused; syncMotion(); });
-  motionPreference.addEventListener("change", syncMotion);
-  syncMotion();
   // Stop offscreen/hidden animation without polling or accumulating timer work.
   const observer = new IntersectionObserver(([entry]) => {
     pipeline?.classList.toggle("is-offscreen", !entry.isIntersecting);
@@ -113,11 +92,7 @@ import { architectureLayers } from "../data/architecture";
 <style>
   .system-pipeline { --flow-cycle: 10s; --icon-cycle: 4.4s; }
   .pipeline-toolbar { display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:1.75rem; }
-  .pipeline-toolbar>p { font-size:.8rem; color:#64748b; line-height:1.65; }
-  .motion-control { display:inline-flex; align-items:center; flex-shrink:0; gap:.4rem; border:1px solid #dbe5ed; border-radius:999px; padding:.45rem .7rem; font-size:.7rem; color:#526780; background:#fff; cursor:pointer; }
-  .motion-control svg { width:.7rem; height:.7rem; stroke:currentColor; stroke-width:1.7; }
-  .motion-control:hover { border-color:#79b5e2; color:#124d80; }
-  .motion-control:disabled { opacity:.65; cursor:default; }
+  .pipeline-toolbar>p { font-size:.9rem; color:#64748b; line-height:1.65; }
   .pipeline-diagram { position:relative; }
   .pipeline-rail { position:absolute; inset:0; width:100%; height:16.25rem; overflow:visible; pointer-events:none; }
   .rail-track { fill:none; stroke:#d4e5f1; stroke-width:1.5; }
@@ -147,12 +122,11 @@ import { architectureLayers } from "../data/architecture";
   .pipeline-icon .application-bar { stroke:#84b6dd; stroke-width:3; transform-box:fill-box; transform-origin:center bottom; }
   /* Moving overlays are optional detail: reduced motion keeps a complete, static illustration. */
   .data-scanner,.model-signal,.harness-dispatch,.harness-done,.application-feedback-signal { opacity:0; }
-  .pipeline-step h3 { margin-top:.85rem; font-size:1.5rem; line-height:1.15; font-weight:400; }
-  .pipeline-step p { margin-top:.55rem; font-size:.8rem; color:#526780; line-height:1.65; }
+  .pipeline-step h3 { margin-top:.85rem; font-size:1.65rem; line-height:1.15; font-weight:400; }
+  .pipeline-step p { margin-top:.55rem; font-size:.92rem; color:#526780; line-height:1.65; }
   .pipeline-step-link:hover h3 { color:#155e9c; }
-  .pipeline-feedback { position:relative; width:fit-content; max-width:80%; margin:2rem auto 0; padding:.25rem .9rem; color:#97226b; background:white; font-size:.8rem; font-weight:500; text-align:center; line-height:1.6; }
+  .pipeline-feedback { position:relative; width:fit-content; max-width:80%; margin:2rem auto 0; padding:.25rem .9rem; color:#97226b; background:white; font-size:.9rem; font-weight:500; text-align:center; line-height:1.6; }
   .pipeline-feedback>span { display:none; }
-  .pipeline-footnote { margin:2.25rem auto 0; text-align:center; font-size:.7rem; color:#64748b; line-height:1.8; }
   @media (prefers-reduced-motion:no-preference) {
     .pipeline-icon::before { animation:layer-highlight var(--flow-cycle) ease-in-out infinite; animation-delay:var(--phase); }
     .pipeline-icon .signal-node { animation:node-highlight var(--flow-cycle) ease-in-out infinite; animation-delay:var(--phase); transform-origin:center; transform-box:fill-box; }
@@ -238,11 +212,10 @@ import { architectureLayers } from "../data/architecture";
     .pipeline-icon { grid-row:1/3; width:6.25rem; height:6.25rem; }
     .pipeline-icon svg { width:6rem; height:5.5rem; }
     .pipeline-icon::before { width:5.5rem; height:5.5rem; }
-    .pipeline-step h3 { align-self:end; margin:0; font-size:1.45rem; }
-    .pipeline-step p { align-self:start; margin:0; font-size:.78rem; }
+    .pipeline-step h3 { align-self:end; margin:0; font-size:1.5rem; }
+    .pipeline-step p { align-self:start; margin:0; font-size:.88rem; }
     .pipeline-rail { display:none; }
-    .pipeline-feedback { margin:1.75rem auto 0; padding:.6rem .9rem; max-width:100%; border:1px dashed #c5ddec; border-radius:999px; background:#f7fbfe; font-size:.75rem; }
+    .pipeline-feedback { margin:1.75rem auto 0; padding:.6rem .9rem; max-width:100%; border:1px dashed #c5ddec; border-radius:999px; background:#f7fbfe; font-size:.84rem; }
     .pipeline-feedback>span { display:inline; margin-right:.4rem; }
-    .pipeline-footnote { margin-top:1.2rem; font-size:.68rem; }
   }
 </style>

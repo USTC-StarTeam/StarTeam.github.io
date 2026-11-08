@@ -13,13 +13,12 @@ const socials = [
 ---
 
 <BaseLayout
-  title="Contact"
-  description={`Contact ${site.name} at ${site.institution}.`}
+  title="联系"
+  description={`联系${site.name}，了解${site.institution}的研究与合作。`}
 >
   <PageHeader
-    eyebrow="Get in touch"
-    title="Contact"
-    lead="We welcome inquiries from prospective trainees, collaborators, and research participants' families."
+    eyebrow="联系我们"
+    title="联系 StarTeam"
   />
   <div class="container-page py-12">
     <div class="grid gap-8 lg:grid-cols-2 lg:items-stretch">
@@ -31,7 +30,7 @@ const socials = [
 
         <dl class="mt-6 space-y-2 text-sm">
           <div class="flex gap-2">
-            <dt class="font-medium text-slate-600">Email</dt>
+            <dt class="font-medium text-slate-600">邮箱</dt>
             <dd>
               <a
                 href={`mailto:${site.email}`}
@@ -39,19 +38,19 @@ const socials = [
               >
             </dd>
           </div>
-          <div class="flex gap-2">
-            <dt class="font-medium text-slate-600">Phone</dt>
+          {site.phone && <div class="flex gap-2">
+            <dt class="font-medium text-slate-600">电话</dt>
             <dd>
               <a
                 href={`tel:${site.phone.replace(/[^0-9+]/g, "")}`}
                 class="text-primary-700 hover:underline">{site.phone}</a
               >
             </dd>
-          </div>
+          </div>}
         </dl>
 
         <h3 class="mt-8 text-sm font-semibold tracking-wide text-slate-600 uppercase">
-          Elsewhere
+          相关链接
         </h3>
         <ul class="mt-2 space-y-1 text-sm">
           {
@@ -86,7 +85,7 @@ const socials = [
           rel="noopener noreferrer"
           class="group inline-flex items-center gap-1 self-start text-sm font-medium text-primary-700 transition-colors hover:text-accent-600"
         >
-          Open in Google Maps
+          在 Google 地图中打开
           <span class="transition-transform group-hover:translate-x-0.5" aria-hidden="true">&rarr;</span>
         </a>
       </div>

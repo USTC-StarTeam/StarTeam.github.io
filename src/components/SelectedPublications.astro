@@ -4,9 +4,8 @@ import type { Publication } from "../lib/content";
 interface Props {
   pubs: Publication[];
   id?: string;
-  showCitationMetadata?: boolean;
 }
-const { pubs, id, showCitationMetadata = true } = Astro.props;
+const { pubs, id } = Astro.props;
 const formatCount = new Intl.NumberFormat("en-US");
 ---
 
@@ -18,11 +17,10 @@ const formatCount = new Intl.NumberFormat("en-US");
       const titleUrl = d.url ?? doiUrl;
       const venueHasYear = d.journal?.includes(String(d.year));
       const hasCitation = typeof d.citations === "number" && Number.isFinite(d.citations);
-      const citationVisible = showCitationMetadata && (Boolean(d.catalogId) || hasCitation);
+      const citationVisible = hasCitation;
       const researchTopics = d.researchTopics ?? [];
       const search = [d.title, ...d.authors, d.method, d.journal, d.category, ...researchTopics, d.year]
         .filter(Boolean).join(" ").normalize("NFKC").toLowerCase();
-      const notes = [d.citationNote, d.verificationNote].filter(Boolean);
       return (
         <li
           class="publication"
@@ -40,10 +38,9 @@ const formatCount = new Intl.NumberFormat("en-US");
             <span class="publication-method">{d.method ?? d.catalogId ?? String(d.year)}</span>
             {citationVisible && (
               <span
-                class:list={["publication-citations", { "citation-missing": !hasCitation }]}
-                title={hasCitation ? "OpenAlex 匹配到的单条记录引用数，非所有版本合计。" : "未获取引用数，不能视为零引用。"}
+                class="publication-citations"
               >
-                {hasCitation ? <><span>OpenAlex</span><strong>{formatCount.format(d.citations!)}</strong></> : "引用未获取"}
+                <span>OpenAlex</span><strong>{formatCount.format(d.citations!)}</strong>
               </span>
             )}
           </div>
@@ -66,8 +63,12 @@ const formatCount = new Intl.NumberFormat("en-US");
             <p class="publication-venue">
               {d.journal}
               {!venueHasYear && <>{d.journal && " · "}{d.year}</>}
-              {d.publicationStatus && !d.journal?.includes(d.publicationStatus) && <span class="publication-status">{d.publicationStatus}</span>}
             </p>
+            {d.awards.length > 0 && (
+              <div class="publication-awards" aria-label="论文荣誉">
+                {d.awards.map(award => <span class="publication-award">{award}</span>)}
+              </div>
+            )}
             {(d.category || researchTopics.length > 0) && (
               <p class="publication-topics" lang="zh-CN">
                 {d.category && <span class="publication-category">{d.category}</span>}
@@ -81,18 +82,6 @@ const formatCount = new Intl.NumberFormat("en-US");
                 {d.code && <a href={d.code} target="_blank" rel="noopener noreferrer" aria-label={`Code: ${d.title}`}>Code</a>}
                 {doiUrl && <a href={doiUrl} target="_blank" rel="noopener noreferrer" aria-label={`DOI: ${d.title}`}>DOI</a>}
               </div>
-            )}
-            {d.scope && (
-              <details class="publication-note publication-scope" lang="zh-CN">
-                <summary>适用范围与边界</summary>
-                <p>{d.scope}</p>
-              </details>
-            )}
-            {showCitationMetadata && notes.length > 0 && (
-              <details class="publication-note" lang="zh-CN">
-                <summary>引用与核实说明</summary>
-                {notes.map(note => <p>{note}</p>)}
-              </details>
             )}
           </div>
         </li>
@@ -110,8 +99,8 @@ const formatCount = new Intl.NumberFormat("en-US");
   }
   .publication {
     display: grid;
-    grid-template-columns: 7.5rem minmax(0, 1fr);
-    gap: 1.5rem;
+    grid-template-columns: 8rem minmax(0, 1fr);
+    gap: 1.75rem;
     padding: 1.6rem 0;
     border-bottom: 1px solid var(--color-slate-200, #e2e8f0);
   }
@@ -120,7 +109,7 @@ const formatCount = new Intl.NumberFormat("en-US");
   .publication-method {
     display: block;
     color: var(--color-accent-700, #97226b);
-    font-size: 0.75rem;
+    font-size: 0.82rem;
     font-weight: 600;
     line-height: 1.6;
     overflow-wrap: anywhere;
@@ -132,18 +121,17 @@ const formatCount = new Intl.NumberFormat("en-US");
     gap: 0.25rem 0.45rem;
     margin-top: 0.65rem;
     color: var(--color-slate-600, #475569);
-    font-size: 0.6875rem;
+    font-size: 0.75rem;
     line-height: 1.7;
     font-variant-numeric: tabular-nums;
   }
   .publication-citations strong { color: var(--color-primary-800, #103f68); font-size: 1.125rem; font-weight: 500; }
-  .citation-missing { color: var(--color-slate-500, #64748b); }
   .publication-body { min-width: 0; }
   .publication-title {
     margin: 0;
     color: var(--color-primary-950, #08213a);
     font-family: var(--font-sans);
-    font-size: 1rem;
+    font-size: 1.08rem;
     font-weight: 600;
     line-height: 1.6;
     text-wrap: initial;
@@ -155,24 +143,21 @@ const formatCount = new Intl.NumberFormat("en-US");
   .publication-venue {
     margin: 0.4rem 0 0;
     color: var(--color-slate-600, #475569);
-    font-size: 0.8125rem;
+    font-size: 0.9rem;
     line-height: 1.8;
     overflow-wrap: anywhere;
   }
   .publication-authors strong { color: var(--color-primary-900, #0d3252); font-weight: 600; }
   .publication-venue { margin-top: 0.25rem; color: var(--color-primary-800, #103f68); }
-  .publication-status { margin-left: 0.65rem; color: var(--color-slate-500, #64748b); font-size: 0.75rem; }
-  .publication-topics { display: flex; flex-wrap: wrap; gap: 0.3rem 0.7rem; margin: 0.55rem 0 0; color: var(--color-slate-500, #64748b); font-size: 0.6875rem; line-height: 1.8; }
+  .publication-awards { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.55rem; }
+  .publication-award { display: inline-flex; align-items: center; border: 1px solid var(--color-accent-200, #f6b9df); border-radius: 999px; padding: 0.22rem 0.7rem; background: var(--color-accent-50, #fdeff8); color: var(--color-accent-800, #7c1f59); font-size: 0.82rem; font-weight: 600; line-height: 1.5; }
+  .publication-topics { display: flex; flex-wrap: wrap; gap: 0.3rem 0.7rem; margin: 0.55rem 0 0; color: var(--color-slate-500, #64748b); font-size: 0.78rem; line-height: 1.8; }
   .publication-topics>span { max-width: 100%; overflow-wrap: anywhere; }
   .publication-category { color: var(--color-primary-700, #124d80); }
-  .publication-summary { margin: 0.65rem 0 0; color: var(--color-slate-700, #334155); font-size: 0.875rem; line-height: 1.85; overflow-wrap: anywhere; }
-  .publication-resources { display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; margin-top: 0.6rem; font-size: 0.8125rem; line-height: 1.8; }
+  .publication-summary { margin: 0.65rem 0 0; color: var(--color-slate-700, #334155); font-size: 0.96rem; line-height: 1.85; overflow-wrap: anywhere; }
+  .publication-resources { display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; margin-top: 0.6rem; font-size: 0.88rem; line-height: 1.8; }
   .publication-resources a { color: var(--color-primary-700, #124d80); text-decoration: underline; text-decoration-color: var(--color-primary-200, #aed3ef); text-underline-offset: 0.2em; }
   .publication-resources a:hover { color: var(--color-accent-700, #97226b); text-decoration-color: currentColor; }
-  .publication-note { margin-top: 0.5rem; color: var(--color-slate-500, #64748b); font-size: 0.75rem; line-height: 1.8; }
-  .publication-note summary { width: fit-content; max-width: 100%; cursor: pointer; }
-  .publication-note summary:hover { color: var(--color-primary-700, #124d80); }
-  .publication-note p { margin: 0.35rem 0 0; color: var(--color-slate-600, #475569); font-size: 0.8125rem; overflow-wrap: anywhere; }
   @media (max-width: 639px) {
     .publication { grid-template-columns: minmax(0, 1fr); gap: 0.5rem; padding: 1.35rem 0; }
     .publication-rail { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 0.3rem 1rem; padding-top: 0; }

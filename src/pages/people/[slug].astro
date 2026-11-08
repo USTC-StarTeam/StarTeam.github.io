@@ -30,7 +30,7 @@ const mine = publicationsForPerson(person, pubs).slice(0, 15);
     mine.length > 0 && (
       <section class:list={[hasBio && "mt-10"]}>
         <h2 class="mb-1 font-serif text-xl text-slate-900">
-          Selected publications
+          代表性论文
         </h2>
         <PubList pubs={mine} />
       </section>

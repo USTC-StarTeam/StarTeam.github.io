@@ -10,53 +10,46 @@ const pubs = (await getPublications())
   .sort(comparePublicationsByCitations);
 const years = [...new Set(pubs.map(publication => publication.data.year))].sort((a, b) => b - a);
 const categories = [...new Set(pubs.map(publication => publication.data.category).filter((category): category is string => Boolean(category)))];
-const knownCitations = pubs.filter(publication => typeof publication.data.citations === "number").length;
-const missingCitations = pubs.length - knownCitations;
 ---
 
-<BaseLayout title="Publications" description="2023–2026 论文目录，支持按标题、研究主题、分类与年份检索，并按 OpenAlex 引用数或年份排序。">
+<BaseLayout title="论文" description="StarTeam 论文目录。">
   <PageHeader
-    eyebrow="Research output"
-    title="Publications"
-    lead={`${citationCatalog.period} 论文目录。按标题、研究主题、分类或年份检索，默认按已获取的 OpenAlex 引用数降序排列。`}
+    eyebrow="研究成果"
+    title="论文"
+    lead={`${citationCatalog.period} StarTeam 研究成果。`}
   />
   <div class="container-page catalog-page py-10 sm:py-12">
     <div class="catalog-provenance" lang="zh-CN">
       <div class="catalog-snapshot">
-        <p><strong>{pubs.length}</strong> 篇目录记录<span aria-hidden="true"> · </span>{knownCitations} 篇已获取引用<span aria-hidden="true"> · </span>{missingCitations} 篇引用未获取</p>
+        <p><strong>{pubs.length}</strong> 篇目录记录</p>
         <p class="catalog-as-of">引用快照日期：<time datetime={citationCatalog.asOf}>{citationCatalog.asOf}</time><span aria-hidden="true"> · </span>{citationCatalog.name}</p>
       </div>
-      <p class="catalog-source-summary">引用数对应文档匹配到的单条 OpenAlex 记录；未获取不等于 0。相同引用数不区分引用高低，排序再依年份与目录编号排列。</p>
-      <details class="catalog-source-details">
-        <summary>数据来源与统计口径</summary>
-        <p>{citationCatalog.sourceNote}</p>
-      </details>
     </div>
 
     <form class="catalog-controls" id="pub-filters" role="search" aria-label="检索论文目录">
       <div class="catalog-search-field">
-        <label for="pub-search">Search</label>
+        <label for="pub-search">搜索</label>
         <input id="pub-search" type="search" name="search" autocomplete="off" placeholder="标题、作者、研究主题、分类或年份" aria-controls="pub-list" />
       </div>
       <div class="catalog-select-field">
-        <label for="pub-year">Year</label>
+        <label for="pub-year">年份</label>
         <select id="pub-year" name="year" aria-controls="pub-list">
           <option value="all">全部年份</option>
           {years.map(year => <option value={year}>{year}</option>)}
         </select>
       </div>
       <div class="catalog-select-field">
-        <label for="pub-category">Category</label>
+        <label for="pub-category">分类</label>
         <select id="pub-category" name="category" aria-controls="pub-list">
           <option value="all">全部分类</option>
           {categories.map(category => <option value={category}>{category}</option>)}
         </select>
       </div>
       <div class="catalog-select-field">
-        <label for="pub-sort">Sort</label>
+        <label for="pub-sort">排序</label>
         <select id="pub-sort" name="sort" aria-controls="pub-list">
-          <option value="citations" selected>Most cited · 引用数</option>
-          <option value="newest">Newest · 年份</option>
+          <option value="citations" selected>引用数</option>
+          <option value="newest">最新年份</option>
         </select>
       </div>
       <div class="catalog-controls-footer">
@@ -65,7 +58,7 @@ const missingCitations = pubs.length - knownCitations;
       </div>
     </form>
 
-    <SelectedPublications pubs={pubs} id="pub-list" showCitationMetadata />
+    <SelectedPublications pubs={pubs} id="pub-list" />
     <p id="pub-empty" class="catalog-empty" hidden lang="zh-CN">没有符合条件的论文。请尝试更换关键词、年份或分类。</p>
   </div>
 
@@ -138,26 +131,22 @@ const missingCitations = pubs.length - knownCitations;
 
 <style>
   .catalog-page { min-width: 0; }
-  .catalog-provenance { margin-bottom: 2rem; border-left: 2px solid var(--color-primary-200, #aed3ef); padding-left: 1rem; color: var(--color-slate-600, #475569); font-size: 0.8125rem; line-height: 1.85; }
+  .catalog-provenance { margin-bottom: 2rem; border-left: 2px solid var(--color-primary-200, #aed3ef); padding-left: 1rem; color: var(--color-slate-600, #475569); font-size: 0.9rem; line-height: 1.85; }
   .catalog-snapshot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem 1.5rem; }
   .catalog-snapshot p { min-width: 0; }
   .catalog-snapshot strong { color: var(--color-primary-900, #0d3252); font-weight: 600; }
   .catalog-snapshot span { margin: 0 0.4rem; color: var(--color-slate-400, #94a3b8); }
-  .catalog-as-of { font-size: 0.75rem; }
-  .catalog-source-summary { margin-top: 0.5rem; }
-  .catalog-source-details { margin-top: 0.5rem; color: var(--color-slate-500, #64748b); font-size: 0.75rem; }
-  .catalog-source-details summary { width: fit-content; max-width: 100%; cursor: pointer; }
-  .catalog-source-details p { margin-top: 0.5rem; max-width: 70rem; overflow-wrap: anywhere; }
+  .catalog-as-of { font-size: 0.82rem; }
   .catalog-controls { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 0.7fr) minmax(0, 1fr) minmax(0, 1.1fr); align-items: end; gap: 1rem; margin-bottom: 1.75rem; }
   .catalog-controls>div { min-width: 0; }
-  .catalog-controls label { display: block; margin-bottom: 0.4rem; color: var(--color-slate-600, #475569); font-size: 0.75rem; font-weight: 500; line-height: 1.6; }
-  .catalog-controls input,.catalog-controls select { display: block; width: 100%; min-width: 0; max-width: 100%; border: 1px solid var(--color-slate-300, #cbd5e1); border-radius: 0.45rem; background: #fff; padding: 0.65rem 0.75rem; color: var(--color-slate-700, #334155); font: inherit; font-size: 0.8125rem; line-height: 1.6; }
+  .catalog-controls label { display: block; margin-bottom: 0.4rem; color: var(--color-slate-600, #475569); font-size: 0.85rem; font-weight: 500; line-height: 1.6; }
+  .catalog-controls input,.catalog-controls select { display: block; width: 100%; min-width: 0; max-width: 100%; border: 1px solid var(--color-slate-300, #cbd5e1); border-radius: 0.45rem; background: #fff; padding: 0.65rem 0.75rem; color: var(--color-slate-700, #334155); font: inherit; font-size: 0.9rem; line-height: 1.6; }
   .catalog-controls input:focus,.catalog-controls select:focus { border-color: var(--color-primary-500, #1f73b8); }
   .catalog-controls input::placeholder { color: var(--color-slate-400, #94a3b8); }
-  .catalog-controls-footer { grid-column: 1/-1; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 0.5rem 1rem; color: var(--color-slate-500, #64748b); font-size: 0.75rem; line-height: 1.8; }
+  .catalog-controls-footer { grid-column: 1/-1; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 0.5rem 1rem; color: var(--color-slate-500, #64748b); font-size: 0.85rem; line-height: 1.8; }
   .catalog-controls-footer button { border: 0; border-bottom: 1px solid var(--color-primary-200, #aed3ef); padding: 0; background: none; color: var(--color-primary-700, #124d80); font: inherit; cursor: pointer; }
   .catalog-controls-footer button:hover { color: var(--color-accent-700, #97226b); border-color: currentColor; }
-  .catalog-empty { padding: 3rem 0; color: var(--color-slate-600, #475569); text-align: center; font-size: 0.875rem; line-height: 1.9; }
+  .catalog-empty { padding: 3rem 0; color: var(--color-slate-600, #475569); text-align: center; font-size: 0.95rem; line-height: 1.9; }
   .catalog-empty[hidden] { display: none; }
   @media(max-width: 1023px) {
     .catalog-controls { grid-template-columns: repeat(2, minmax(0, 1fr)); }

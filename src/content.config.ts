@@ -52,7 +52,6 @@ const publications = defineCollection({
     method: z.string().optional(),
     summary: z.string().optional(),
     code: z.url().optional(),
-    scope: z.string().optional(),
     authors: z.array(z.string()),
     year: z.number(),
     journal: z.string().optional(),
@@ -67,9 +66,6 @@ const publications = defineCollection({
     citationSource: z.literal("OpenAlex").optional(),
     citationAsOf: z.string().optional(),
     citationRetrievedAt: z.string().optional(),
-    publicationStatus: z.string().optional(),
-    citationNote: z.string().optional(),
-    verificationNote: z.string().optional(),
     homepageOrder: z.number().optional(),
     citations: z.number().optional(),
     isMenteePaper: z.boolean().default(false),
@@ -77,6 +73,7 @@ const publications = defineCollection({
     // The lab PI is first or last (senior) author.
     piFirstOrSenior: z.boolean().default(false),
     featured: z.boolean().default(false),
+    awards: z.array(z.string()).default([]),
     openAccess: z.boolean().default(false),
     // Research tags — topic/population AREAS (drive the Research page) plus
     // cross-cutting facets. One field; a paper may carry several. The vocabulary

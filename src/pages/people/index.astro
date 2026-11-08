@@ -8,15 +8,14 @@ const groups = await getGroupedPeople();
 ---
 
 <BaseLayout
-  title="People"
-  description="Faculty, researchers, and alumni of the lab."
+  title="团队"
+  description="StarTeam 团队成员。"
 >
   <PageHeader
-    eyebrow="The team"
-    title="People"
-    lead="The faculty, researchers, and alumni who make up the lab."
+    eyebrow="StarTeam"
+    title="团队"
   />
   <div class="container-page py-12">
-    {groups.map((g) => <PersonGroup title={g.group} people={g.people} />)}
+    {groups.map((g) => <PersonGroup title={g.group === "Faculty" ? "教师" : g.group} people={g.people} />)}
   </div>
 </BaseLayout>

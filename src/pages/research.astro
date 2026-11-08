@@ -1,55 +1,122 @@
 ---
 import BaseLayout from "../components/BaseLayout.astro";
 import PageHeader from "../components/PageHeader.astro";
-import PubList from "../components/PubList.astro";
-import { getResearchGroups } from "../lib/content";
+import PipelineHero from "../components/PipelineHero.astro";
+import SelectedPublications from "../components/SelectedPublications.astro";
+import { researchLayers } from "../data/research-layers";
+import { getPublications } from "../lib/content";
 
-// Data-driven: papers group by their `areas` tags. Each area shows its most
-// recent few with a link to the full, area-filtered Publications list.
-const groups = await getResearchGroups(4);
+const publications = await getPublications();
+const publicationsById = new Map(publications.map((paper) => [paper.id, paper]));
 ---
 
 <BaseLayout
-  title="Research"
-  description="An overview of the lab's research topics and methods."
+  title="研究体系"
+  description="StarTeam 从动态数据、模型能力、任务运行到领域应用组织研究工作。"
 >
   <PageHeader
-    eyebrow="What we do"
-    title="Research"
-    lead="A short overview of what the lab studies and how. Explore our work by topic or by approach."
+    eyebrow="Research system"
+    title="研究体系"
+    lead="从动态数据出发，形成模型能力，经由任务运行框架进入真实应用，并在应用反馈中继续演进。"
   />
-  <div class="container-page space-y-16 py-12">
-    {
-      groups.map((group) => (
-        <section>
-          <div class="mb-3 h-1 w-12 rounded-full bg-accent-500"></div>
-          <h2 class="font-serif text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">{group.title}</h2>
-          <div class="mt-8 space-y-12">
-            {group.areas.map((area) => (
-              <div id={area.slug} class="scroll-mt-24">
-                <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-                  <h3 class="font-serif text-2xl font-semibold text-slate-900">{area.label}</h3>
-                  {area.total > area.pubs.length && (
-                    <a
-                      href={`/publications#${area.slug}`}
-                      class="group inline-flex shrink-0 items-center gap-1 text-sm font-medium text-primary-700 transition-colors hover:text-accent-600"
-                    >
-                      All {area.total}
-                      <span class="transition-transform group-hover:translate-x-0.5" aria-hidden="true">
-                        &rarr;
-                      </span>
-                    </a>
-                  )}
+  <section class="border-y border-slate-200 bg-white" aria-label="研究体系地图">
+    <div class="container-page py-12 sm:py-14">
+      <PipelineHero />
+    </div>
+  </section>
+
+  <section class="research-layers" aria-labelledby="research-layers-title">
+    <div class="container-page py-14 sm:py-16">
+      <div class="research-intro">
+        <div>
+          <div class="mb-3 h-0.5 w-10 rounded-full bg-accent-500"></div>
+          <h2 id="research-layers-title" class="font-serif text-3xl text-slate-900">四个层级，形成一个研究系统</h2>
+        </div>
+      </div>
+
+      <div class="research-layer-list">
+        {researchLayers.map((layer) => {
+          return (
+            <section id={`layer-${layer.id}`} class="research-layer scroll-mt-24">
+              <div class="research-layer-heading">
+                <div class="research-layer-title">
+                  <span class="research-layer-number">{layer.number}</span>
+                  <div>
+                    <h3>{layer.title}</h3>
+                    <p class="research-layer-chinese">{layer.chinese}</p>
+                  </div>
                 </div>
-                <p class="mt-2 max-w-3xl text-slate-600">{area.blurb}</p>
-                <div class="mt-4">
-                  <PubList pubs={area.pubs} />
-                </div>
+                <p class="research-layer-description">{layer.description}</p>
               </div>
-            ))}
-          </div>
-        </section>
-      ))
-    }
-  </div>
+
+              <div class="research-layer-steps" aria-label={`${layer.chinese}研究环节`}>
+                {layer.steps.map((step, index) => {
+                  const stepNumber = String(index + 1).padStart(2, "0");
+                  const stepPubs = step.paperIds.flatMap((paperId) => {
+                    const paper = publicationsById.get(paperId);
+                    return paper ? [paper] : [];
+                  });
+                  return (
+                    <article class="research-subsection">
+                      <div class="research-subsection-marker">
+                        <span class="research-step-number">{stepNumber}</span>
+                      </div>
+                      <div class="research-subsection-content">
+                        <h4>{step.title}</h4>
+                        <p>{step.description}</p>
+                        {stepPubs.length > 0 && (
+                          <div class="research-subsection-publications">
+                            <SelectedPublications pubs={stepPubs} />
+                          </div>
+                        )}
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+              <a class="research-layer-all-papers" href="/publications">查看全部论文 <span aria-hidden="true">→</span></a>
+            </section>
+          );
+        })}
+      </div>
+    </div>
+  </section>
 </BaseLayout>
+
+<style>
+  .research-layers { background:linear-gradient(180deg,#f7fafd,#f4f8fc 72%,#f9fbfd); }
+  .research-intro { display:flex; align-items:flex-end; justify-content:space-between; gap:1.5rem; }
+  .research-layer-list { margin-top:3.5rem; }
+  .research-layer { padding:3.5rem 0 4rem; border-top:1px solid #dce8f1; }
+  .research-layer:first-child { border-top:0; padding-top:0; }
+  .research-layer-heading { display:grid; grid-template-columns:minmax(15rem,.9fr) minmax(18rem,1.4fr); gap:1rem 3rem; align-items:start; }
+  .research-layer-title { display:flex; align-items:flex-start; gap:1rem; }
+  .research-layer-number { color:#d6409f; font-size:.85rem; font-variant-numeric:tabular-nums; letter-spacing:.08em; line-height:1.7; }
+  .research-layer-title h3 { color:#08213a; font-family:var(--font-serif); font-size:2rem; line-height:1.25; }
+  .research-layer-chinese { margin-top:.35rem; color:#6a7f96; font-size:.88rem; line-height:1.6; }
+  .research-layer-description { color:#334d68; font-size:1.03rem; line-height:1.9; }
+  .research-layer-steps { margin-top:2.25rem; border-top:1px solid #c8dce9; }
+  .research-subsection { display:grid; grid-template-columns:4.25rem minmax(0,1fr); gap:1.25rem; padding:1.35rem 0 1.5rem; border-bottom:1px solid #dce8f1; }
+  .research-subsection-marker { position:relative; }
+  .research-subsection-marker::after { content:""; position:absolute; top:1.55rem; bottom:-1.55rem; left:.35rem; border-left:1px solid #c8dce9; }
+  .research-subsection:last-child .research-subsection-marker::after { display:none; }
+  .research-step-number { color:#d6409f; font-size:.78rem; font-variant-numeric:tabular-nums; letter-spacing:.08em; }
+  .research-subsection-content { min-width:0; }
+  .research-subsection h4 { color:#103f68; font-size:1.1rem; font-weight:600; line-height:1.5; }
+  .research-subsection-content>p { margin-top:.5rem; max-width:58rem; color:#405a73; font-size:1rem; line-height:1.9; }
+  .research-subsection-publications { margin-top:1.15rem; }
+  .research-subsection-publications :global(.selected-publications) { border-top-color:#c8dce9; }
+  .research-layer-all-papers { display:inline-flex; gap:.45rem; margin:1.5rem 0 0 5.5rem; color:#124d80; font-size:.85rem; }
+  .research-layer-all-papers:hover { color:#b92d85; }
+  @media (max-width:767px) {
+    .research-intro { align-items:flex-start; flex-direction:column; gap:.8rem; }
+    .research-intro h2 { font-size:1.85rem; }
+    .research-layer-heading { display:flex; flex-direction:column; gap:1rem; }
+    .research-layer-steps { margin-top:1.75rem; }
+    .research-subsection { grid-template-columns:2.5rem minmax(0,1fr); gap:.85rem; }
+    .research-subsection-marker::after { left:.25rem; }
+    .research-related-papers { grid-template-columns:1fr; gap:.2rem; }
+    .research-layer-all-papers { margin-left:3.35rem; }
+    .research-layer { padding:2.75rem 0 3rem; }
+  }
+</style>
