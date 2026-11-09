@@ -1,5 +1,10 @@
 ---
 import { architectureLayers } from "../data/architecture";
+
+interface Props {
+  layerPage?: string;
+}
+const { layerPage = "" } = Astro.props;
 ---
 
 <div class="system-pipeline" data-system-pipeline>
@@ -24,7 +29,7 @@ import { architectureLayers } from "../data/architecture";
     <ol class="pipeline-steps">
       {architectureLayers.map((layer, index) => (
         <li class="pipeline-step" style={`--phase:${index * 2}s;--icon-phase:${index * -.28}s`}>
-          <a class="pipeline-step-link" href={`#layer-${layer.id}`}>
+          <a class="pipeline-step-link" href={`${layerPage}#layer-${layer.id}`} aria-label={`查看 ${layer.title}：${layer.chinese}`}>
             <div class={`pipeline-icon icon-${layer.id}`}>
               <svg viewBox="0 0 120 108" fill="none" aria-hidden="true">
                 {layer.id === "data" && <>

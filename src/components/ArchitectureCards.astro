@@ -1,18 +1,24 @@
 ---
 import { architectureLayers } from "../data/architecture";
+
+const basePath = import.meta.env.BASE_URL.endsWith("/")
+  ? import.meta.env.BASE_URL
+  : `${import.meta.env.BASE_URL}/`;
+const researchPath = `${basePath}research`;
 ---
 
 <div class="architecture-stage" data-card-deck>
   <div class="deck-toolbar">
-    <div class="deck-selectors" role="group" aria-label="抽出架构卡片">
-      {architectureLayers.map(layer => <button type="button" class="deck-selector" data-select-layer={layer.id} aria-pressed="false" aria-controls={`layer-${layer.id}`}><span>{layer.number}</span>{layer.title}</button>)}
+    <div class="deck-selectors" role="group" aria-label="进入对应研究层级">
+      {architectureLayers.map(layer => <a class="deck-selector" href={`${researchPath}#layer-${layer.id}`} data-select-layer={layer.id} aria-label={`查看 ${layer.title}：${layer.chinese}`}><span>{layer.number}</span>{layer.title}</a>)}
     </div>
+    <p class="deck-instruction">悬停预览，点击进入对应研究部分 <span aria-hidden="true">↗</span></p>
   </div>
   <div class="architecture-cards">
     <div class="deck-backing" aria-hidden="true"></div>
     {architectureLayers.map((layer, index) => (
-      <article id={`layer-${layer.id}`} class={`layer-card layer-${layer.id}`} style={`--layer:${index}`} tabindex="0" data-layer={layer.id} aria-labelledby={`card-title-${layer.id}`}>
-        <div class="card-topline"><span>{layer.number} / SYSTEM LAYER</span><button type="button" class="card-extract" data-extract-layer={layer.id} aria-label={`抽出 ${layer.title} 卡片`} aria-pressed="false"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M5 15 15 5 M6 5h9v9" /></svg></button></div>
+      <a id={`layer-${layer.id}`} class={`layer-card layer-${layer.id}`} href={`${researchPath}#layer-${layer.id}`} style={`--layer:${index}`} data-layer={layer.id} aria-label={`查看 ${layer.title}：${layer.chinese}`}>
+        <div class="card-topline"><span>{layer.number} / SYSTEM LAYER</span><span class="card-extract" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none"><path d="M5 15 15 5 M6 5h9v9" /></svg></span></div>
         <h3 id={`card-title-${layer.id}`}>{layer.title}</h3>
         <p class="layer-chinese">{layer.chinese}</p>
         <p class="layer-description">{layer.description}</p>
@@ -20,7 +26,7 @@ import { architectureLayers } from "../data/architecture";
           {layer.tags.map(tag => <li>{tag}</li>)}
         </ul>
         <div class="card-bottomline"><span class="card-indicator" aria-hidden="true"></span><p>{layer.note}</p></div>
-      </article>
+      </a>
     ))}
   </div>
   <div class="deck-bottomline"><button type="button" class="deck-reset" data-deck-reset>收回卡片 <span aria-hidden="true">↙</span></button></div>
@@ -31,8 +37,8 @@ import { architectureLayers } from "../data/architecture";
 <script>
   const deck = document.querySelector<HTMLElement>("[data-card-deck]");
   if (deck) {
-    const cards = [...deck.querySelectorAll<HTMLElement>("[data-layer]")];
-    const selectors = [...deck.querySelectorAll<HTMLButtonElement>("[data-select-layer]")];
+    const cards = [...deck.querySelectorAll<HTMLAnchorElement>("[data-layer]")];
+    const selectors = [...deck.querySelectorAll<HTMLAnchorElement>("[data-select-layer]")];
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     const canHover = window.matchMedia("(hover: hover) and (pointer: fine)");
     let pinned = "";
@@ -44,19 +50,20 @@ import { architectureLayers } from "../data/architecture";
       cards.forEach(card => {
         const selected = card.dataset.layer === id;
         card.classList.toggle("is-extracted", selected);
-        const extract = card.querySelector<HTMLButtonElement>("[data-extract-layer]");
-        extract?.setAttribute("aria-pressed", String(selected));
-        extract?.setAttribute("aria-label", `${selected ? "收回" : "抽出"} ${card.querySelector("h3")?.textContent} 卡片`);
       });
-      selectors.forEach(button => button.setAttribute("aria-pressed", String(button.dataset.selectLayer === id)));
+      selectors.forEach(link => link.classList.toggle("is-previewed", link.dataset.selectLayer === id));
       if (announce) {
         const status = deck.querySelector<HTMLElement>("[data-deck-status]");
         if (status) status.textContent = id ? `已抽出 ${cards.find(card => card.dataset.layer === id)?.querySelector("h3")?.textContent} 卡片` : "已收回全部卡片";
       }
     };
-    const pin = (id: string) => { pinned = pinned === id ? "" : id; select(pinned, true); };
-    selectors.forEach(button => {
-      button.addEventListener("click", () => pin(button.dataset.selectLayer ?? ""));
+    // Native links navigate on click/Enter, even with JavaScript disabled.
+    // Hover and focus only preview the deck; they never intercept navigation.
+    selectors.forEach(link => {
+      const id = link.dataset.selectLayer ?? "";
+      link.addEventListener("pointerenter", () => { if (canHover.matches) select(id); });
+      link.addEventListener("focus", () => select(id));
+      link.addEventListener("blur", () => select(pinned));
     });
     cards.forEach(card => {
       const id = card.dataset.layer ?? "";
@@ -67,10 +74,6 @@ import { architectureLayers } from "../data/architecture";
       card.addEventListener("focusout", event => {
         if (!card.contains(event.relatedTarget as Node | null)) select(pinned);
       });
-      card.addEventListener("click", event => {
-        if (!(event.target as Element).closest("button")) pin(id);
-      });
-      card.querySelector("[data-extract-layer]")?.addEventListener("click", () => pin(id));
     });
     deck.addEventListener("pointerleave", () => {
       if (canHover.matches && !deck.contains(document.activeElement)) select(pinned);
@@ -111,7 +114,11 @@ import { architectureLayers } from "../data/architecture";
   .deck-selector { display:inline-flex; align-items:center; justify-content:center; gap:.4rem; border:1px solid transparent; border-radius:.55rem; background:transparent; color:#526780; padding:.5rem .65rem; font-size:.84rem; line-height:1.4; cursor:pointer; }
   .deck-selector>span { color:#8ca1b5; font-size:.65rem; }
   .deck-selector:hover { color:#124d80; background:#f0f7fd; }
-  .deck-selector[aria-pressed="true"] { background:#fff; border-color:#c4d9ea; color:#124d80; box-shadow:0 2px 6px #153d6510; }
+  .deck-selector.is-previewed { background:#fff; border-color:#c4d9ea; color:#124d80; box-shadow:0 2px 6px #153d6510; }
+  .deck-instruction { color:#61768f; font-size:.8rem; line-height:1.7; }
+  .deck-instruction span { color:#b92d85; }
+  .layer-card,.deck-selector { text-decoration:none; }
+  .layer-card:focus-visible { outline:2px solid #1f73b8; outline-offset:4px; }
   .architecture-cards { position:relative; display:grid; grid-template-columns:minmax(0,1fr); align-items:start; margin:0 1.3rem; padding:4.5rem 0 3rem; }
   .deck-backing { position:absolute; left:3%; right:1%; top:13rem; height:15rem; border:1px solid #d5e3ef; border-radius:1.3rem; background:linear-gradient(150deg,#e5eef7,#edf5fb); transform:translate3d(0,0,0); box-shadow:0 24px 28px -25px #244b7a50; }
   .deck-backing::before,.deck-backing::after { content:""; position:absolute; inset:.5rem -.18rem -.5rem .18rem; z-index:-1; border:1px solid #cbdcea; border-radius:inherit; background:#e9f1f8; }
@@ -127,7 +134,7 @@ import { architectureLayers } from "../data/architecture";
   .card-topline { display:flex; align-items:center; justify-content:space-between; gap:.5rem; margin-bottom:.6rem; color:#61768f; font-size:.6rem; letter-spacing:.12em; line-height:1.5; }
   .card-extract { display:grid; place-items:center; width:1.75rem; height:1.75rem; flex-shrink:0; margin:-.25rem -.5rem -.15rem 0; border:1px solid #cfdeeb; border-radius:50%; background:#ffffffa8; color:#8da7bd; cursor:pointer; }
   .card-extract svg { width:.85rem; height:.85rem; stroke:currentColor; stroke-width:1.5; }
-  .card-extract:hover,.card-extract[aria-pressed="true"] { color:#b92d85; border-color:#e8bcda; background:#fff; }
+  .layer-card:hover .card-extract,.layer-card:focus-visible .card-extract { color:#b92d85; border-color:#e8bcda; background:#fff; }
   .layer-card h3 { font-family:var(--font-sans); font-size:clamp(1.35rem,2.1vw,1.8rem); font-weight:500; line-height:1.15; letter-spacing:-.04em; color:#183e63; }
   .layer-chinese { margin-top:.4rem; font-size:.88rem; color:#5f7490; letter-spacing:.04em; }
   .layer-description { margin-top:1.05rem; color:#485f79; font-size:.95rem; line-height:1.9; }
